@@ -3,33 +3,54 @@
 .category-container {
   position: sticky;
   position: -webkit-sticky;
+  display: flex;
   top: 0;
   line-height: 0;
   white-space: nowrap;
-  overflow-x: scroll;
   -ms-overflow-style: none; // IE 10+
   overflow: -moz-scrollbars-none; // Firefox
   z-index: 1;
   padding: 6px 20px;
 
-  .item {
-    display: inline-block;
-    margin: 0.25rem 6px 0.25rem 0;
-    border-radius: 15px;
-    white-space: normal;
-    box-sizing: border-box;
-    cursor: pointer;
-
-    div {
-      display: block;
-      padding: 14px 16px 16px 16px;
-      font-size: 13px;
-      box-sizing: border-box;
-    }
+  .filter-button {
+    width: 15rem;
+    background: linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%);
+    border-radius: 3px;
+    border: 0;
+    color: white;
+    height: 40px;
+    padding: 0 30px;
+    box-shadow: 0 3px 5px 2px rgba(255, 105, 135, .3);
   }
 
-  .item:last-child {
-    margin-right: 0;
+  .search-filter {
+    margin-top: 5px;
+    margin-bottom: 0;
+    margin-left: 5vw;
+
+    & > label {
+      top: -13px;
+    }
+
+    & > div {
+      margin-top: 5px;
+    }
+
+    .MuiFormLabel-root.Mui-focused{
+      color:#FE6B8B;
+    }
+
+    .MuiInput-underline:after{
+      border-bottom:2px solid #FE6B8B;
+    }
+
+    .MuiInputLabel-shrink {
+      transform: translate(0, 8px) scale(0.70);
+    }
+
+    .MuiInputBase-input{
+      padding: 6px 0 5px;
+    }
   }
 }
 
