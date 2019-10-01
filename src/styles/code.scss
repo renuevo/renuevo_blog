@@ -15,11 +15,26 @@
   margin-left: -1.2em;
   padding-right: 1em;
   padding-left: 0.75em;
-  border-left: 0.35em solid #0687f0;
+  border-left: 0.35em solid #ff609a;
 }
 
-blockquote {
-  color: $blockquote-text-color;
+.gatsby-highlight {
+  .language-textbox {
+    code {
+      border-radius: 5px;
+      color: #383838;
+    }
+  }
+
+  pre[class*="language-"] {
+    border-radius: 5px;
+    display: flex;
+
+    code[class*="language-"] {
+      flex: 1;
+    }
+
+  }
 }
 
 code[class*='language-'],
@@ -47,6 +62,10 @@ pre[class*='language-'] {
 
   -ms-overflow-style: none; // IE 10+
   overflow: -moz-scrollbars-none; // Firefox
+}
+
+code[class*='language-text']{
+  font-weight: 500;
 }
 
 pre[class*='language-']::-webkit-scrollbar {

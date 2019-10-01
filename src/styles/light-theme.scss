@@ -12,9 +12,11 @@ body.light {
     .author-name-content {
       background-color: $light-category-border-color;
     }
+
     .author-introduction {
       color: $middle-gray;
     }
+
     a {
       color: $light-link-color;
     }
@@ -22,7 +24,7 @@ body.light {
 
   .category-container {
 
-    .MuiInputBase-input{
+    .MuiInputBase-input {
       padding: 6px 0 5px;
     }
 
@@ -32,9 +34,11 @@ body.light {
     h3 {
       color: $dark-gray;
     }
+
     p {
       color: $middle-gray;
     }
+
     &:hover {
       text-shadow: $light-hover-text-shadow;
     }
@@ -42,6 +46,7 @@ body.light {
 
   .footer {
     color: $light-gray;
+
     a {
       color: $dark-gray;
     }
@@ -54,4 +59,9 @@ body.light {
       color: $navigator-text-color;
     }
   }
+
+  blockquote {
+    color: $light-blockquote-text-color;
+  }
+
 }

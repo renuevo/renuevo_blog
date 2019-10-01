@@ -18,9 +18,9 @@ export const Layout = ({ location, title, children }) => {
         style={{
           marginLeft: `auto`,
           marginRight: `auto`,
-          maxWidth: `60vw`,
           padding: `${rhythm(1.5)} ${rhythm(3 / 4)}`,
         }}
+        className={'main-container'}
       >
         <ThemeSwitch />
         <Header title={title} location={location} rootPath={rootPath} />

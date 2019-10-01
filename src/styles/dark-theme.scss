@@ -13,9 +13,11 @@ body.dark {
     .author-name-content {
       background-color: $dark-category-border-color;
     }
+
     .author-introduction {
       color: $dark-middle-font-color;
     }
+
     a {
       color: $dark-link-color;
     }
@@ -23,7 +25,7 @@ body.dark {
 
   .category-container {
 
-    .MuiInputBase-input{
+    .MuiInputBase-input {
       padding: 6px 0 5px;
       color: $dark-light-font-color;
     }
@@ -34,9 +36,11 @@ body.dark {
     h3 {
       color: $dark-light-font-color;
     }
+
     p {
       color: $dark-middle-font-color;
     }
+
     &:hover {
       text-shadow: $dark-hover-text-shadow;
     }
@@ -44,6 +48,7 @@ body.dark {
 
   .footer {
     color: $dark-middle-font-color;
+
     a {
       color: $dark-lightest-font-color;
     }
@@ -52,6 +57,7 @@ body.dark {
   // post
   blockquote {
     border-left: 4px solid rgba(255, 255, 255, 0.822);
+    color: $dark-blockquote-text-color;
   }
 
   h1,

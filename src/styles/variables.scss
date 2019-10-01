@@ -6,6 +6,9 @@ $top-header-text-color: #fff;
  * @light theme
  */
 
+//screen-size
+$screen-small: 50em;
+
 // body
 $light-background-color: #fff;
 $light-text-shadow: 0 0 0.1px rgba(0, 0, 0, 0.3);
@@ -21,7 +24,8 @@ $light-gray: #aaa;
 // blog-templates
 $navigator-text-color: #cc007a;
 $navigator-background-color: #fceff7;
-$blockquote-text-color: #999;
+$light-blockquote-text-color: hsla(0,0%,0%,0.8);
+$dark-blockquote-text-color: #d8d7d7;
 
 // code
 $inline-dimmed-color: #ece5f1;
