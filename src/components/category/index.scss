@@ -1,8 +1,8 @@
 @import '../../styles/variables.scss';
 
 .category-container {
-  position: sticky;
-  position: -webkit-sticky;
+//  position: sticky;
+//  position: -webkit-sticky;
   display: flex;
   top: 0;
   line-height: 0;
@@ -11,6 +11,8 @@
   overflow: -moz-scrollbars-none; // Firefox
   z-index: 1;
   padding: 6px 20px;
+  box-sizing: content-box;
+  margin-top: 50px;
 
   .filter-button {
     width: 15rem;
@@ -36,20 +38,24 @@
       margin-top: 5px;
     }
 
-    .MuiFormLabel-root.Mui-focused{
-      color:#FE6B8B;
+    .MuiFormLabel-root.Mui-focused {
+      color: #FE6B8B;
     }
 
-    .MuiInput-underline:after{
-      border-bottom:2px solid #FE6B8B;
+    .MuiInput-underline:after {
+      border-bottom: 2px solid #FE6B8B;
     }
 
     .MuiInputLabel-shrink {
       transform: translate(0, 8px) scale(0.70);
     }
 
-    .MuiInputBase-input{
+    .MuiInputBase-input {
       padding: 6px 0 5px;
+    }
+
+    .MuiAppBar.root {
+      box-sizing: border-box;
     }
   }
 }

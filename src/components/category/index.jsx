@@ -7,7 +7,7 @@ import TextField from '@material-ui/core/TextField'
 import './index.scss'
 import MenuItem from "@material-ui/core/MenuItem";
 
-export const Category = ({categories, category, selectCategory}) => {
+export const Category = ({categories, category, selectCategory, searchEvent}) => {
     const [anchorEl, setAnchorEl] = useState(null)
     const [filterCategory, setFilterCategory] = useState("All")
 
@@ -20,6 +20,7 @@ export const Category = ({categories, category, selectCategory}) => {
         if (!(title instanceof Object))
             setFilterCategory(title)
     }
+
 
     return (
         <div
@@ -60,6 +61,7 @@ export const Category = ({categories, category, selectCategory}) => {
                 label="Search"
                 type="search"
                 margin="normal"
+                onChange={searchEvent('Search')}
             />
         </div>
     )

@@ -27,6 +27,7 @@ export function getCategory(defaultValue) {
   )
 }
 
+
 export function setCategory(val) {
   return setValueToSessionStorage(`${SESSION_STORAGE_KEY}/category`, val)
 }

@@ -29,6 +29,7 @@ export default ({ data, location }) => {
   const [count, setCount] = useState(initialCount)
   const countRef = useRef(count)
   const [category, setCategory] = useState(initialCategory)
+  const [searchKeyword, setKeyword] = useState("")
 
   const { siteMetadata } = data.site
   const { countOfInitialPost } = siteMetadata.configs
@@ -59,6 +60,12 @@ export default ({ data, location }) => {
     ScrollManager.go(DEST_POS)
   }
 
+  const searchEvent = keyword => event => {
+    setKeyword(event.target.value.toLowerCase())
+    ScrollManager.go(DEST_POS)
+  }
+
+
   const onScroll = () => {
     const currentPos = window.scrollY + window.innerHeight
     const isTriggerPos = () => getDistance(currentPos) < BASE_LINE
@@ -79,12 +86,14 @@ export default ({ data, location }) => {
         categories={categories}
         category={category}
         selectCategory={selectCategory}
+        searchEvent={searchEvent}
       />
       <Contents
         posts={posts}
         countOfInitialPost={countOfInitialPost}
         count={count}
         category={category}
+        searchKeyword={searchKeyword}
       />
     </Layout>
   )

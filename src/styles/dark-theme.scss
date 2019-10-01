@@ -2,6 +2,7 @@ body.dark {
   background-color: $dark-background-color;
   text-shadow: $dark-text-shadow;
   color: $dark-light-font-color;
+  padding-right: 0 !important;
 
   // home
   .home-header {
