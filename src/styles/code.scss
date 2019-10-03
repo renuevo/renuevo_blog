@@ -4,7 +4,6 @@
  * @author Rose Pritchard
  * @custoimized by Jbee
  */
-
 @import url(https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.206/distr/fira_code.css);
 @import './variables.scss';
 
@@ -26,6 +25,11 @@
     }
   }
 
+  pre[class*="language-textbox"] {
+    background-color: #f8f8f8;
+    border: 1px solid #cccccc;
+  }
+
   pre[class*="language-"] {
     border-radius: 5px;
     display: flex;
@@ -42,7 +46,7 @@ pre[class*='language-'] {
   color: #e0e0e0;
   background: none;
   font-family: 'Fira Code', 'Consolas', 'Monaco', 'Andale Mono', 'Ubuntu Mono',
-    monospace;
+  monospace;
   text-align: left;
   white-space: pre;
   word-spacing: normal;
@@ -64,8 +68,10 @@ pre[class*='language-'] {
   overflow: -moz-scrollbars-none; // Firefox
 }
 
-code[class*='language-text']{
-  font-weight: 500;
+p {
+  code[class*='language-text'] {
+    font-weight: 600;
+  }
 }
 
 pre[class*='language-']::-webkit-scrollbar {
@@ -156,6 +162,7 @@ pre[class*='language-'] {
 .token.bold {
   font-weight: bold;
 }
+
 .token.italic {
   font-style: italic;
 }

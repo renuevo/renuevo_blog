@@ -10,7 +10,7 @@ module.exports = {
     medium: ``, // Your Medium account
     facebook: `deokhwa.kim.75`, // Your Facebook account
   },
-  icon: `content/assets/felog.png`, // Add your favicon
+  icon: `content/assets/favicon.png`, // Add your favicon
   keywords: [`blog`,
             `java`,
             `kotlin`,

@@ -28,6 +28,7 @@ module.exports = {
       resolve: `gatsby-transformer-remark`,
       options: {
         plugins: [
+          'gatsby-remark-relative-images',
           {
             resolve: `gatsby-remark-images`,
             options: {
@@ -38,8 +39,13 @@ module.exports = {
           {
             resolve: `gatsby-remark-images-medium-zoom`,
             options: {
-              margin: 36,
-              scrollOffset: 0,
+              background: 'rgba(66,66,66,0.8)',
+            },
+          },
+          {
+            resolve: 'gatsby-remark-copy-linked-files',
+            options: {
+              ignoreFileExtensions: [],
             },
           },
           {
@@ -54,7 +60,6 @@ module.exports = {
               inlineCodeMarker: '%',
             },
           },
-          `gatsby-remark-copy-linked-files`,
           `gatsby-remark-smartypants`,
           `gatsby-remark-autolink-headers`,
           `gatsby-remark-emoji`,

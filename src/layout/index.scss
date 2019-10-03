@@ -14,5 +14,17 @@ body {
     @media screen and (max-width: $screen-small) {
       max-width: 39rem;
     }
+
+    .sub_header {
+      font-size: 0.8rem;
+    }
+
+    .img_caption {
+      font-style: normal;
+      display: inherit;
+      text-align: center;
+      font-size: 90%;
+    }
+
   }
 }
