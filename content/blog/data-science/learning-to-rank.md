@@ -1,5 +1,5 @@
 ---
-title: [DataScience] LTR(Learning To Rank)
+title: "[DataScience] LTR(Learning To Rank)"
 date: 2018-10-05
 category: 'Data Science'
 ---
