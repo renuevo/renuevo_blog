@@ -25,6 +25,12 @@ body {
       text-align: center;
       font-size: 90%;
     }
+    .category-container {
+      margin-bottom: 1.5rem;
 
+      .MuiInputBase-input {
+        padding: 6px 0 5px;
+      }
+    }
   }
 }

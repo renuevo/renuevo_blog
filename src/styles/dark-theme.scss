@@ -26,8 +26,15 @@ body.dark {
   .category-container {
 
     .MuiInputBase-input {
-      padding: 6px 0 5px;
       color: $dark-light-font-color;
+    }
+
+    .MuiFormLabel-root {
+      color: rgb(255, 255, 255);
+    }
+
+    .MuiInput-underline:before{
+      border-bottom: 1px solid rgb(255, 255, 255);
     }
 
   }
