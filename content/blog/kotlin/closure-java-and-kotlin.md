@@ -3,7 +3,7 @@ title: "[Kotlin] java와 kotlin의 closure에 관하여"
 date: 2019-09-22
 category: 'Kotlin'
 ---
-이전에 [왜 Kotlin을 써야 할까?](https://renuevo.github.io/why_kotlin/)에서 제가 언급했던 closure에 관한 포스팅을 하려고 합니다  
+이전에 [왜 Kotlin을 써야 할까?](https://renuevo.github.io/why-kotlin)에서 제가 언급했던 closure에 관한 포스팅을 하려고 합니다  
 
 ##Closure
 먼저 closure부터 살펴 보겠습니다  

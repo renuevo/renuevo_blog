@@ -68,7 +68,7 @@ pre[class*='language-'] {
   overflow: -moz-scrollbars-none; // Firefox
 }
 
-p {
+p, li {
   code[class*='language-text'] {
     font-weight: 600;
   }
