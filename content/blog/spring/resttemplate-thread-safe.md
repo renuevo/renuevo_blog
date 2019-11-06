@@ -1,5 +1,5 @@
 ---
-title: "[Spring] RestTemplate은 Thread Safe 문제"
+title: "[Spring] RestTemplate Thread Safe?"
 date: 2019-11-07
 category: 'Spring'
 ---
