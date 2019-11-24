@@ -1,13 +1,25 @@
 ---
 title: 'about'
-date: 2019-1-27 16:21:13
-lang: 'en'
+date: 2019-11-24 23:30:00
+lang: 'ko'
 ---
 
-# Your name
-
+# Deokhwa Kim
 <div align="center">
+<figure style="max-width:200px; width: 80%;">
 
-_Thank you for reading my resume. If you want to contact me, Please send me an email._
+![profile](../assets/profile.png)
+
+</figure>
+
+Deokhwa Kim  
+28 age  
+BackEnd Programer  
+SaraminHR Lab
 
 </div>
+
+<br/>
+<br/>
+
+![dev-profile](./images/dev-profile.png)
