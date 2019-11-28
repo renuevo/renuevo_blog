@@ -22,4 +22,4 @@ SaraminHR Lab
 <br/>
 <br/>
 
-![dev-profile](./images/dev-profile.png)
+![dev-profile](./images/dev-flow.png)
