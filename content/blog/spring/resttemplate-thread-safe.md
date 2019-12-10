@@ -10,7 +10,7 @@ category: 'Spring'
 그래서 간단하게 해당 이슈에 관해 알아본 내용을 정리한 포스팅 입니다    
 
 ## RestTemplate은 Thread Safe 하다?
-**맞습니다 RestTempalte은 Thread Safe 합니다**  
+**맞습니다 RestTemplate은 Thread Safe 합니다**  
 그래서 흔히들 아래와 같이 `@Bean`으로 선언하여 사용해서 자원을 아끼는 구조로 설계합니다  
 
 ```java
