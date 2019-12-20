@@ -1,5 +1,5 @@
 ---
-title: "[Notion] 페이스북을 활용한 트럼프의 대선 전략과 LSA 알고리즘"
+title: "[DataScience] 페이스북을 활용한 트럼프의 대선 전략과 LSA 알고리즘"
 date: 2019-12-10
 category: 'Data Science'
 ---
