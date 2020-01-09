@@ -19,7 +19,7 @@ category: 'Spring'
 public class RestConfig{
     @Bean
     RestTemplate restTemplate(){
-        return new ResteTemplate();
+        return new RestTemplate();
     }
 }
 
@@ -49,7 +49,7 @@ RestTemplate은 [동작원리](https://skasha.tistory.com/48)를 살펴보면 �
 >        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
 >        factory.setConnectTimeout(5000);    //5초
 >        factory.setReadTimeout(5000);   //5초
->        return new ResteTemplate(factory);  /* highlight-line */
+>        return new RestTemplate(factory);  /* highlight-line */
 >    }
 >}
 >```
@@ -73,7 +73,7 @@ RestTemplate은 [동작원리](https://skasha.tistory.com/48)를 살펴보면 �
 >               .setMaxConnPerRoute(5)
 >               .build();
 >       factory.setHttpClient(httpClient);
->       return new ResteTemplate(factory);  /* highlight-line */
+>       return new RestTemplate(factory);  /* highlight-line */
 >    }
 >}
 >```
