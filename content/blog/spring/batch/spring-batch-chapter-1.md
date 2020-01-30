@@ -3,8 +3,9 @@ title: "[Spring] Spring Batch 1부"
 date: 2020-01-30
 category: 'Spring'
 ---
+
+1부는 Spring Batch의 구조와 동작 방식의 대한 이야기를 다룹니다  
 ***Spring의 DI,AOP,서비스 + [Accenture](https://www.accenture.com/us-en)의 Batch 노하우***  
-이 포스팅 정리는 [기억보단 기록을](https://jojoldu.tistory.com/)님의 Spring Batch가이드를 토대로 작성 되었습니다   
 해당 포스팅의 모든 소스는 [Github](https://github.com/renuevo/spring-boot-in-action)에서 확인하실 수 있습니다  
 
 <br/>
