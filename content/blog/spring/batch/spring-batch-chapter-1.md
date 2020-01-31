@@ -336,7 +336,7 @@ public class JobSecondConfig {
                 .build();
     }
 
-	@Bean
+    @Bean
     public JobExecutionDecider decider() {
         return new jobDecider();
     }
