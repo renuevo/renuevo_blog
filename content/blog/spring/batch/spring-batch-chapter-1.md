@@ -87,8 +87,22 @@ Ibatis 모듈은 현재 삭재 되었고 JDBC ItemReader로 교체를 추천
       }
   ```
 
-  
 
+**파라미터로 Job 실행 지정하기**
+
+```yaml
+spring:
+  batch:
+    job:
+      names: ${job.name:NONE}
+
+```
+
+원하는 job을 외부 파라미터로 실행할 경우 다음과 같이 properties로 지정해 준다음 program argument 파라미터를 지정해 주시면 됩니다  
+예를 들어 **jpaItemListWriterJob** 이라는 job을 실행하고 싶을 경우 다음과 같이 해주시면 됩니다  
+```
+program argument : --job.name=jpaItemListWriterJob
+```
 
 
 ------
@@ -118,13 +132,13 @@ Ibatis 모듈은 현재 삭재 되었고 JDBC ItemReader로 교체를 추천
 
 <br/>
 
-1. **BATCH_JOB_INSTANCE**  
+1. **BATCH\_JOB\_INSTANCE**  
    1. job이 실행 되는 단위  
    2. job의 name/key/version 등의 정보를 가지고 있습니다  
 
 <br/>
 
-2. **BATCH_JOB_EXCUTION_PARAMS**  
+2. **BATCH\_JOB\_EXCUTION_PARAMS**  
    1. job과 1:1의 관계를 갖는 parameters 입니다  
    2. job과 1:1의 속성때문에 param이 다르면 job_instance가 새롭게 생성됩니다  
    3. Map타입으로 지정데이터를 job에 넘길 수 있습니다  
@@ -174,7 +188,7 @@ Ibatis 모듈은 현재 삭재 되었고 JDBC ItemReader로 교체를 추천
 
 
 
-3. **BATCH_JOB_EXECUTION**
+3. **BATCH\_JOB\_EXECUTION**
 
    1. batch\_job\_instance와 대응되면서 `성공/실패` 내역을 갖고 있습니다
    2. process는 해당 table을 조회해서 재수행이 필요한 job만 처리 합니다
@@ -299,11 +313,11 @@ public class JobSecondConfig {
 
 ![Standard Flow](./images/job-step.PNG)
 
-<span class='img_caption'>Standard  Flow</span>
+<span class='img_caption'>Standard Flow</span>
 
 
 
-**BATCH_STEP_EXECUTION**
+**BATCH\_STEP\_EXECUTION**
 
 *각각의 Step에 대한 성공 실패 여부가 기록됩니다*
 
@@ -382,6 +396,10 @@ public class JobSecondConfig {
 
 `Double`, `Long`, `Date`, `String` 형식만을 지원합니다  
 
+
+```
+program argument : --job.name=jobScope requestDate=20200203
+```
 
 
 ```java
