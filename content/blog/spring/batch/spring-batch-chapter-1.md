@@ -42,13 +42,22 @@ Ibatis 모듈은 현재 삭재 되었고 JDBC ItemReader로 교체를 추천
 
 
 
-## Spring Batch 기본 구조
+## Spring Batch 기본 구조  
+Spring Batch의 구조는 다음과 같은 계층을 이루고 있습니다  
+
+<br/>
+
+**Job > Step > Task**  
+
+<br/>
 
 ![Spring Batch Diagram](./images/Ch02_SpringBatchArchitecture_Architecture_StepTaskletFlow.png)
 
  <span class='img_caption'>Source : [Spring Batch Architecture](https://terasoluna-batch.github.io/guideline/5.0.0.RELEASE/en/Ch02_SpringBatchArchitecture.html) </span> 
 
-
+위에 그림에서 처럼 Job은 Step을 가지고 있고 Step은 Tasklet 인터페이스를 통해 수행 작업들을 가지고 있습니다  
+Task는 기본적인 **사용자 정의 형식**과 **read / process / write (RPW) 형식**이 존재합니다  
+그럼 각각의 요소들을 정리해 보겠습니다  
 
 **1. Job**
 
@@ -87,18 +96,36 @@ Ibatis 모듈은 현재 삭재 되었고 JDBC ItemReader로 교체를 추천
       }
   ```
 
+<br/>
 
 **파라미터로 Job 실행 지정하기**
+
+Spring Batch는 자체적으로 스케줄 처리를 하지 기능이 없습니다  
+그래서 외부에서 Crontab / Jenkins 등을 사용해서 Job을 실행하게 됩니다  
+이때 program argument를 통해 job name을 전달해서 원하는 job을 실행 하실 수 있습니다  
+
+  ```java
+      @Bean
+      public Job jobBean(){
+          return jobBuilderFactory.get("jpaItemListWriterJob")
+                  .start(stepBean())
+                  .build();
+      }
+  ```
 
 ```yaml
 spring:
   batch:
     job:
       names: ${job.name:NONE}
-
 ```
 
-원하는 job을 외부 파라미터로 실행할 경우 다음과 같이 properties로 지정해 준다음 program argument 파라미터를 지정해 주시면 됩니다  
+원하는 job을 외부 파라미터로 실행할 경우 다음과 같이 properties로 지정해 줍니다  
+properties를 다음과 같이 지정하므로 모든 job이 실행되는 것을 미연에 방지할 수 있습니다  
+그리고 다음으로 program argument 파라미터를 지정해 주시면 됩니다  
+
+<br/>
+
 예를 들어 **jpaItemListWriterJob** 이라는 job을 실행하고 싶을 경우 다음과 같이 해주시면 됩니다  
 ```
 program argument : --job.name=jpaItemListWriterJob
@@ -110,6 +137,8 @@ program argument : --job.name=jpaItemListWriterJob
 
 
 ## Srping Boot Meta Data
+Spring Batch에서는 DB를 통해 `완료/실패`와 같은 `상태관리`를 합니다  
+크게 4가지의 상태를 DB에 저장하는데  
 
 1. 이전 실행 Job History
 2. 실패한 Batch와 Parameter / 성공한 Job
@@ -125,7 +154,6 @@ program argument : --job.name=jpaItemListWriterJob
 
 
 해당 Table들은 Spring Batch 동작에 꼭 필요하며 `H2 DB`사용시 자동으로 생성되지만  
-
 그외 DB들은 직접 생성해 주어야합니다
 
 `DB DDL` 쿼리는 org.springframework.batch.core에 포함되어 있고 탐색 및 schema 검색으로 확인할 수 있습니다
@@ -197,29 +225,45 @@ program argument : --job.name=jpaItemListWriterJob
 
  <span class='img_caption'>BATCH_JOB_EXECUTION</span>
 
+이외의 Step과 관련된 Meta Table은 생략하겠습니다  
+Job과 비슷하므로 한번 실행해 보시면 바로 이해 가능하실껍니다  
 
+추가적으로 Batch에서 Meta Table을 꼭 필요한 부분을 Spring의 DataSource 설정을 제외하므로 그냥 실행 가능합니다  
+
+
+```java
+@EnableBatchProcessing
+@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})  /* highlight-line */  
+public class BatchApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(BatchApplication.class, args);
+    }
+}
+```
+
+:warning:  <span class='red_font'>하지만 이 방식은 기존의 Spring Batch을 상태관리의 장점을 지워버리므로 추천드리지 않습니다</span>  
 
 ------
 
-
-
 ## Spring Batch Flow
+다음은 Batch으 흐름제어 입니다  
+여기서는 간단하게 실패와 성공 등등의 여부의 흐름만을 설명합니다  
+이후 `skip`과 같은 예외사항의 대한 흐름제어는 3부에서 설명하겠습니다  
+여기서는 기본적인 Job의 흐름제어는 상태를 저장하고 그 상태의 대한 조건으로 흐름을 제어합니다  
 
+<br/>
 
-
+<span class='code_header'>**기본적은 상태 저장**</span>  
 ```java
 contribution.setExitStatus(ExitStatus.FAILED); //setExitStatus로 상태를 저장 할 수 있다
 ```
 
-
-
-**흐름 제어**
-
+**흐름 제어 메소드**
 1. on - 이전 step의 status에 대한 다음 행동
 2. to - on과 연결된 다음 행동
 3. end - 반환 / build 종료 2가지가 존재 맺음 메소드
 4. from - on과 end 이외 추가전 이벤트 캐치 사용에 사용  
-
 
 
 ```java
@@ -256,7 +300,7 @@ public class JobSecondConfig {
         return stepBuilderFactory.get("step1")
                 .tasklet((contribution, chunkContext) -> {
                     log.info("[========= This is Step1 ==========]");
-                    contribution.setExitStatus(ExitStatus.FAILED);      //Status Failed
+                    contribution.setExitStatus(ExitStatus.FAILED);      //Status Failed    /* highlight-line */  
                     return RepeatStatus.FINISHED;
                 })
                 .build();
@@ -277,7 +321,7 @@ public class JobSecondConfig {
         return stepBuilderFactory.get("step3")
                 .tasklet((contribution, chunkContext) -> {
                     log.info("[========= This is Step3 ==========]");
-                    contribution.setExitStatus(ExitStatus.FAILED);      //Status Failed
+                    contribution.setExitStatus(ExitStatus.FAILED);      //Status Failed 
                     return RepeatStatus.FINISHED;
                 })
                 .build();
@@ -286,7 +330,8 @@ public class JobSecondConfig {
 }
 
 ```
-
+위에서 `하이라이팅`된 부분을 보시면 어떤 형식으로 흐름제어를 하는지 한눈에 들어 오실 겁니다  
+그리고 실행해보면 아래와 같은 결과를 얻으실 수 있습니다  
 
 
 ![Fail Flow](./images/job-step1.PNG)
@@ -294,16 +339,14 @@ public class JobSecondConfig {
 <span class='img_caption'>Fail Flow</span>
 
 
-
+다음은 정상적으로 `FINISHED`로 끝난 코드입니다  
 ```java
     @Bean
     public Step jobStep1(){
         return stepBuilderFactory.get("step1")
                 .tasklet((contribution, chunkContext) -> {
                     log.info("[========= This is Step1 ==========]");
-                    /*
-                    	contribution.setExitStatus(ExitStatus.FAILED);
-                    */
+                    /* contribution.setExitStatus(ExitStatus.FAILED); */ /* highlight-line */  
                     return RepeatStatus.FINISHED;
                 })
                 .build();
@@ -315,27 +358,27 @@ public class JobSecondConfig {
 
 <span class='img_caption'>Standard Flow</span>
 
-
-
+ 
 **BATCH\_STEP\_EXECUTION**
-
-*각각의 Step에 대한 성공 실패 여부가 기록됩니다*
+해당 table에서는 *각각의 Step에 대한 성공 실패 여부가 기록됩니다*
 
 ![BATCH_STEP_EXECUTION](./images/step-completed.PNG)
 
 <span class='img_caption'>BATCH_STEP_EXECUTION</span>
 
+하지만 위의 코드에서는 <span class='red_font'>문제점</span>이 있습니다  
+다음으로는 그 문제점들을 알아보고 해결해 보도록 하겠습니다  
 
+<br/>
 
 **위의 코드의 `문제점`**
-
 1. `Step`이 Flow랑 Process처리라는 `2가지`의 역할을 수행 합니다
-
 2. ExitStatus로는 다양한 `Flow 처리`에 번거로움이 있습니다
 
 
-
 #### JobExecutionDecider 를 통한 Flow 처리
+Spring Batch에서는 이를 위해 `JobExecutionDecider`인터페이스를 구현하는 흐름처리를 제공합니다  
+이렇게 Step과 Flow 처리를 분리하므로 보다 결합성 낮은 코드를 구현할 수 있습니다  
 
 ```java
    	@Bean
@@ -363,13 +406,9 @@ public class JobSecondConfig {
         }
     }
 
-
-
 ```
 
-
-
-**JobExecutionDecider**로 Flow를 제어하여 역할을 분리하고 유동적으로 많은 조건들을 생성해서 적용 가능하다
+**JobExecutionDecider**로 Flow를 제어하여 역할을 분리하고 유동적으로 많은 조건들을 생성해서 적용 가능합니다  
 
 <br/>
 
@@ -378,29 +417,35 @@ public class JobSecondConfig {
 
 
 ## JobParameter & Scope
+Process 운영하다 보면 외부의 데이터를 통한 구현이 필요할 때가 있습니다  
+*Spring Batch에서는 Barch Component에서 사용할 수 있게 지원되는 파라미터*를 제공합니다  
+`jobParameters`통해 간단하게 값을 받아 올 수 있습니다  
+또한 기본적으로 4가지의 `Double`, `Long`, `Date`, `String` 형식만을 지원합니다  
 
-*Barch Component에서 사용할 수 있게 지원되는 파라미터*  
-
-
-
+<span class='code_header'>**jobParameter 기본형식**</span>  
 ```java
 @Value("#{jobParameters[parameterName]}")
 ```
+<br/>
 
-
+:warning: JobParameters를 사용시에는 구현부에 다음과 같은 `annotation`들이 <span class='red_font'>강제</span> 됩니다  
 
 **JobParameter Scope**  
-
 1. JobScope : Step 사용시 사용  
 2. StepScope : Tasklet 사용시 사용  
 
-`Double`, `Long`, `Date`, `String` 형식만을 지원합니다  
+<br/>
 
+*간단한 예제를 통해 동작 방식을 알아 보겠습니다*
 
+<br/>
+
+<span class='code_header'>**실행 시 parameter 지정**</span>  
 ```
 program argument : --job.name=jobScope requestDate=20200203
 ```
 
+실행은 다음과 같이 jobScope라는 job을 실행하며 뒤에 requestDate라는 파라미터를 주게 됩니다  
 
 ```java
 
@@ -415,7 +460,7 @@ public class JobParameterConfig {
     @Bean
     public Job jobScopeBean() {
         return jobBuilderFactory.get("jobScope")
-                .start(scopeStep1(null))
+                .start(scopeStep1(null))   /* highlight-line */ 
                 .next(scopeStep2())
                 .build();
     }
@@ -452,30 +497,42 @@ public class JobParameterConfig {
 
 ```
 
+위의 하이라이팅된 부분을 보시면 `Step`의 처음에는 <span class='red_font'>null</span>로 입력하지만  
+이후 실행에서는 정상적으로 `20200203`라는 값을 얻을 수 있습니다  
+
+<br/>
+
+근데 여기서 의문을 가지시는 분들이 계실 수 있습니다  
+Spring의 Bean은 기본적으로  `singleton` scope로 구현되어 집니다  
+하지만 이렇게 실행되어 지면 외부에서 가져오는 값을 통한 jobParameters 매핑이 어려울 수 있습니다  
+그에 대한 해답이 `@StepScope`와 `@JobScope` 입니다  
 
 ```
 @Bean에 @StepScope와 @JobScope를 같이 사용하면 Step의 시작과 종료시 생성/삭제가 이루어지게 됩니다  
 ```
+즉 해당 annotaion들을 통해서 singleton이 아닌 `prototype`으로 scope가 생성되어 집니다  
+*거기다.. proxy로요..*
 
+<br/>
 
+`prototype`으로 구현되어 얻을수 있는 장점은 크게 **2가지**가 있습니다  
 
 1. JobParameter의 Late Binding
-
    일반적인 Bean 생성시점이 아닌 지점에서 생성 되므로 `Controller`와 `Service`와 같은 **비지니스 로직 처리단계에서 Job Parameter를 할당** 할 수 있게 됩니다
 
-2. Component Parallel Processing 
-
+2. Component Parallel Processing  :point_right: [Race Condition 문제](https://ko.wikipedia.org/wiki/경쟁_상태)   
    일반적인 `Singleton` 처럼 생성되면 각각의 Step에서 Tasklet의 멤버변수등의 상태를 수정하는 일이 생기면서 데이터가 덮어써지게 됩니다  
-    :point_right: [Race Condition 문제](https://ko.wikipedia.org/wiki/경쟁_상태)  
    `@StepScope`로 **각각의 Step별로 별도의 Tasklet를 생성**하고 관리하게 하므로써 이러한 문제를 해결 할 수 있습니다
+   
 
-
+<br/>
 
 ### JobParameter 주의 사항  
-
+위에서의 설명을 요약하면 이렇습니다  
 1. JobParameter는 `@Value`를 통해서만 값을 할당 받을 수 있습니다  
 2. `@JobScope`와 `@StepScope`로 **Bean**을 생성할때만 Jobparameter가 생성되어 사용 할 수 있습니다  
 
+만약 이를 어기게 되면 바로 다음과 같은 <span class='red_font'>Error</span>를 보실 수 있습니다  
 <br/> 
 
 <span class='code_header'>**Job Parameter Bean**</span>  
@@ -505,6 +562,7 @@ public class JobParameterConfig {
 <br/>
 
 ### JobParameter를 사용하는 이유  
+
 1. Late Binding (Command Line실행외의 다른 실행이 어려워 진다)    
    *다음과 같이 동적 parameter의 대한 대응을 할 수 없습니다*  
 
@@ -539,7 +597,7 @@ public class JobParameterConfig {
    ```
 
    ![Batch Parameter Controller](./images/batch-parameter-controller.PNG)  
-   ***Spring Batch에서는 웹서버로 Batch를 관리하기를 `권장하지 않습니다`*** :exclamation:  
+   ***Spring Batch에서는 웹서버로 Batch를 관리하기를 `권장하지 않습니다`*** :warning:  
    
 <br/>
 
