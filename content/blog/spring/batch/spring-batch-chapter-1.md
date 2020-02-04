@@ -40,10 +40,24 @@ Ibatis 모듈은 현재 삭재 되었고 JDBC ItemReader로 교체를 추천
 
 ------
 
-
-
 ## Spring Batch 기본 구조  
-Spring Batch의 구조는 다음과 같은 계층을 이루고 있습니다  
+Spring Batch 실행을 위해서는 다음과 같이 SpringApplication에 annotation을 선언해 주는것 부터 시작합니다    
+
+```java
+@EnableBatchProcessing /* highlight-line */  
+@SpringBootApplication  
+public class BatchApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(BatchApplication.class, args);
+    }
+}
+```
+
+<br/>
+
+다음으로 Spring Batch의 구조를 확인하겠습니다  
+Spring Batch는 크게 계층형 구조를 이루고 있습니다  
 
 <br/>
 
@@ -130,7 +144,6 @@ properties를 다음과 같이 지정하므로 모든 job이 실행되는 것을
 ```
 program argument : --job.name=jpaItemListWriterJob
 ```
-
 
 ------
 
