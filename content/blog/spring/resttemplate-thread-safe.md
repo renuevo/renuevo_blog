@@ -1,5 +1,5 @@
 ---
-title: "[Spring] RestTemplate Thread Safe?"
+title: "[Spring] RestTemplate는 Thread Safe할까?"
 date: 2019-11-07
 category: 'Spring'
 ---
@@ -97,8 +97,8 @@ Connection을 유지하면서 빠르게 처리하는 Http의 connection 방법�
 
 <br/>
 
-신규 개발 서비스에서는 WebClient를 도입하기를 권장드립니다 :point_right:
-[RestTemplate 말고 WebClient](https://junebuug.github.io/2019-02-11/resttemplate-vs-webclient)
+신규 개발 서비스에서는 `WebClient`를 도입하기를 권장드립니다 :point_right: [RestTemplate 말고 WebClient](https://junebuug.github.io/2019-02-11/resttemplate-vs-webclient)   
+또는 Feign을 사용해 보세요 정말 좋습니다 [우아한 feign 적용기](https://woowabros.github.io/experience/2019/05/29/feign.html)  
 
 ---
 
