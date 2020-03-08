@@ -25,7 +25,7 @@ BIOS에서 CPU설정을 확인하셔서 가상화 관련 기능을 Enabled 시�
 <br/>
 
 ### 2. Windows10 Hyper-V 설정하기  
-다음으로 윈도우의 Hyper-V기능을 활성화 해야합니다  
+다음으로 윈도우의 Hyper-V기능을 활성화 해야합니다 :point-right:[왜 Hyper-V가 필요한가?](http://renuevo.github.io/other/docker/docker-hello-world/#windows10-hyper-v%EC%99%80-docker)   
 **프로그램 추가 제거로 들어가서 Windows 기능 켜기/끄기를 클릭합니다**  
 
 ![Hyper-V](./images/check-hyper-v.PNG)
