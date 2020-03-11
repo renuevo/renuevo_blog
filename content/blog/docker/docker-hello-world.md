@@ -83,7 +83,7 @@ docker login [OPTIONS] [SERVER]
 [OPTIONS] : -u --username / -p --password
 ```
 
-login은 사진처럼 단계별로 입력하는 방법과 options으로 한꺼번에 입력 할 수도 있습니다  
+login은 사진처럼 단계별로 입력하는 방법과 options으로 한꺼번에 입력할 수도 있습니다  
 
 <br/>
 
@@ -121,7 +121,7 @@ Windows 10 이전에는 cmd의 각종 문제가 많았지만 이후론 문제들
 
 <br/>
 
-물론 다 필요없이 CMD에서 실행 할경우 정상적으로 실행 됩니다 ~~(그래도 CMD는 불편)~~  
+물론 다 필요없이 CMD에서 실행할 경우 정상적으로 실행 됩니다 ~~(그래도 CMD는 불편)~~  
 
 ![cmd_docker_login](./images/cmd-docker-login.png)  
 
@@ -132,17 +132,17 @@ Windows 10 이전에는 cmd의 각종 문제가 많았지만 이후론 문제들
 ### Image를 가져와서 Hello World 출력  
 
 Image를 가져올때는 Pull을 통해 가져올 수 있습니다  
-`Image`명으로 원하는 Image를 선택하고 `Tag`를 통해 버젼을 지정해서 가져오는게 일반적입니다  
-[Docker Hub](https://hub.docker.com/)에 접속하시면 관련 Description과 Tag들을 확인 하실 수 있습니다  
+[Docker Hub](https://hub.docker.com/)에 접속하시면 Image의 `Description`과 `Tag`들을 확인 하실 수 있습니다  
 
 ![ubuntu-docker](./images/ubuntu-docker-hub.PNG)  
 
 <br/>
 
+Docker의  Pull 기본 명령 형식은 다음과 같습니다  
 ```text
 docker pull [IMAGENAME]:[TAG]
 ``` 
-
+`Image`명으로 원하는 Image를 선택하고 `Tag`를 통해 버젼을 지정해서 가져오는게 일반적입니다  
 <span class='code_header'>따라서 Ubuntu Image를 가져오는 Docker 명령어는 다음과 같습니다</span>  
 
 ```text
@@ -152,26 +152,27 @@ docker pull ubuntu:lastest
 
 <br/>
 
-**이제 Image를 확인 합니다**  
-
+위와 같이 차례로 필요한 요소를 다운로드 합니다  
+그리고 완료 후 `docker image ls`를 통해 local Image를 확인할 수 있습니다    
 ```text
 docker image ls
 ``` 
 ![docker-image-ls](./images/docker-image-ls.png)
 
-다음 명령어를 통해 현재 local에 가지고 있는 Image들을 확인 할 수 있습니다  
-
 <br/>
 
-이제 Ubuntu Container를 설정하고 echo를 통해 Hello world를 출력해 봅니다  
+자 그럼 이제 Ubuntu Image를 가져왔습니다   
+**이제 Docker를 통해 Image를 적용해서 Ubuntu Container를 구성하고 echo를 통해 Hello world를 출력해 봅시다**  
+Container 구성 명령어는 `docker container run [IMAGENAME]`입니다  
 
 ```text
 docker container run ubuntu:latest /bin/echo 'Hello world'
 ```
+
 ![hello_world_error](./images/hello-world-error.png)
 
-그럼 다음과 같은 <span class='red_font'>Error</span>를 만나게 됩니다  
-이유인즉 /bin/echo Path가 `Convert` 되면서 Git에서 `/bin/echo`를 찾게 됩니다  
+짜잔! 그럼 다음과 같은 <span class='red_font'>Error</span>를 만나게 됩니다  
+이유인 즉 /bin/echo Path가 `Convert` 되면서 Git에서 `/bin/echo`를 찾게 됩니다  
 `Hello world`가 쉽지가 않습니다 :sweat_smile:    
 
 <br/>
@@ -196,7 +197,7 @@ MSYS_NO_PATHCONV=1 docker container run ubuntu:latest /bin/echo 'Hello world'
 
 <br/>
 
-**드디어 `Hello world`를 만났습니다**  
+**드디어 `Hello world`를 만났습니다** :v:   
 
 ![docker-hello-world-done](./images/docker-hello-world-done.png)  
 
