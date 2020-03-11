@@ -1,7 +1,7 @@
 ---
 title: "[Docker] Docker의 구조와 Windows10의 Docker"
 date: 2020-03-09
-category: 'Other'
+category: 'Docker'
 ---
 
 # Docker의 기본 구조  
@@ -10,7 +10,7 @@ category: 'Other'
 ## 서버 가상화 (Virtual Machine)  
 먼저 서버 가상화 기술 2가지에 대해 알아 보겠습니다  
 
-![Server Virtual](./images/hypervisor.png)  
+![Server Virtual](images/hypervisor.png)  
 
 <br/>
 
@@ -42,7 +42,7 @@ Type1을 전가상화 Type2를 반가상화라고 설명하는 글들을 볼 수
 VM과 헷갈리기 쉬워 [Containers are not VMs](https://www.docker.com/blog/containers-are-not-vms/)라는 글이 정식으로 등록되기도 했습니다  
 그림으로 서로 어떻게 다른지 살펴보겠습니다  
 
-![containers-vm](./images/docker-structure.png)  
+![containers-vm](images/docker-structure.png)  
 <span class='img_caption'>Source : [Docker Blog](https://www.docker.com/blog/containers-and-vms-together/)</span>  
 
 `Containers`는 Host OS위에서 동작합니다  
@@ -58,7 +58,7 @@ Docker는 추상화를 통해 Host OS 커널을 공유 하면서 각 App Contain
 ## Windows10 Hyper-V와 Docker  
 **Windows10에서 Hyper-V를 통해 Docker에 Linux 가상화 환경을 제공합니다**  
 
-![Docker OS Type](./images/docker-info.PNG)  
+![Docker OS Type](images/docker-info.PNG)  
 이를 통해 Docker는 OS-TYPE Linux로 동작하는 것을 확인 할 수 있습니다  
 
 <br/>
@@ -69,7 +69,7 @@ Windows10에서 Linux를 제공하는 방법은 2가지 입니다 :point_right: 
 1. Linux VM를 통한 Linux 컨테이너 실행
 2. Hyper-V 격리 통한 Linux 컨테이너 실행
 
-![docker on windows](./images/docker-on-windows.png)
+![docker on windows](images/docker-on-windows.png)
 
 일반적으로 1번 방식을 통해 Docker는 Windows에서도 Linux Container를 동작합니다  
 Client는 Windows에 둔 상태에서 Daemon만을 이중으로 두고 운영환경에 맞게 동작됩니다   
@@ -86,7 +86,7 @@ Mac OS의 경우는 `Xhyve`라는 `Hypervisor`기반의 `HyperKit`를 통한 경
 
 <br/>
 
-![Docker On Mac](./images/docker-for-mac-install.png)
+![Docker On Mac](images/docker-for-mac-install.png)
 <span class='img_caption'>Source : [Docker Desktop on Mac vs. Docker Toolbox](https://docs.docker.com/docker-for-mac/docker-toolbox/)</span>
 
 <br/>

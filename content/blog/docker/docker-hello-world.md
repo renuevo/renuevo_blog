@@ -1,7 +1,7 @@
 ---
 title: "[Docker] Docker 시작하기 - Hello World와 Git Bash"
 date: 2020-03-10
-category: 'Other'
+category: 'Docker'
 ---
 
 # Docker 시작하기  
@@ -16,11 +16,6 @@ category: 'Other'
 해당 포스팅의 설명은 `Windows10`에서 `Git Bash`를 사용하여 설명합니다  
 요즘은 Docker도 편리한 관리를 위해서 아래사진과 같은 `Kitematic`이라는 GUI 툴도 제공합니다  
 
-![Kitematic](./images/kitematic.PNG)  
-[Docker Doc Kitematic Guide](https://docs.docker.com/kitematic/userguide/)를 통해 정식으로 지원하고 있습니다  
-하지만 이번 포스팅에서는 다루지 않고 Command로 진행합니다  
-Kitematic을 통한 설정은 추후 Elastic과 Kibana설치를 하는 예제로 포스팅하겠습니다  
-
 ---
 
 ## Docker의 기본 방식  
@@ -32,10 +27,15 @@ Docker는 기본적으로 App실행에 필요한 것들을 Build하여 `Image`�
 ```
 
 **그림으로 보면 아래와 같습니다**  
+![Kitematic](images/kitematic.PNG)  
+[Docker Doc Kitematic Guide](https://docs.docker.com/kitematic/userguide/)를 통해 정식으로 지원하고 있습니다  
+하지만 이번 포스팅에서는 다루지 않고 Command로 진행합니다  
+Kitematic을 통한 설정은 추후 Elastic과 Kibana설치를 하는 예제로 포스팅하겠습니다  
+
 
 <br/>
 
-![Docker Image Flow](./images/docker-image-flow.png)  
+![Docker Image Flow](images/docker-image-flow.png)  
 
 위의 그림은 처럼 A, B, C 의 전혀 다른 서버에 **Docker Image를 활용해 같은 환경**을 만들수 있습니다  
 이렇게 환경을 맞춤으로 많은 이점을 가질 수 있습니다  
@@ -44,3 +44,6 @@ Docker는 기본적으로 App실행에 필요한 것들을 Build하여 `Image`�
 **2. 호환성 문제를 극복**  
 
 제 생각에는 크게 이렇게 2가지를 얻을 수 있다고 생각합니다  
+
+
+
