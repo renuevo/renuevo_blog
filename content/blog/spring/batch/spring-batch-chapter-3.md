@@ -35,6 +35,21 @@ Spring Batch는 이러한 구현을 사용자가 직접하지 않고 사용할 �
 
 <br/>
 
-2가지 방식은 같은 데이터를 읽어 오지만 서로 다른 전략으로 DB의 데이터를 읽어 옵니다  
-
 ![DB_ItemReader](./images/db-itemreader.png)
+
+2가지 방식은 같은 데이터를 읽어 오지만 서로 다른 전략으로 DB의 데이터를 읽어 옵니다  
+프로세스 동작에 따라 알맞은 전략을 선택해야 하며 전략선택에 따라 Batch의 퍼포먼스를 높일 수 있습니다  
+
+<br/>
+
+## Cursor-based ItemReader  
+**Cursor-based ItemReader**  
+>1. JdbcCursorItemReader   
+>2. HibernateCursorItemReader  
+>3. StoredProcedureItemReader  
+
+
+## Paging ItemReader  
+**Paging ItemReader**  
+>1. JdbcPagingItemReader  
+>2. JpaPagingItemReader   
