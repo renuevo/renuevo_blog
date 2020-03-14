@@ -18,7 +18,7 @@ Spring은 사용자 편의를 위하여 `JDBC의 기능을 확장`해서 `추상
 
 ```textbox
 Spring Batch의 가장 큰 장점 중 하나는 `Chunk` 지향 처리입니다  
-`Chunk`지향처리란 **한 번에 하나씩의 데이터를 읽어 Chunk라는 덩어리를 만든 뒤, Chunk 단위로 트랜잭션**을 다루는 것을 의미합니다  
+`Chunk`지향처리란 한 번에 하나씩의 데이터를 읽어 Chunk라는 덩어리를 만든 뒤, Chunk 단위로 트랜잭션을 다루는 것을 의미합니다  
 그래서 트랜잭션을 수행시 `Chunk`단위로 수행하기 때문에 Chunk 만큼만 롤백 됩니다  
 ```
     
@@ -43,10 +43,66 @@ Spring Batch는 이러한 구현을 사용자가 직접하지 않고 사용할 �
 <br/>
 
 ## Cursor-based ItemReader  
+먼저 설명드릴 것은 Batch 시스템의 `default`로 쓰인다고 할 수 있는 `Cursor Based ItemReader`입니다  
+
+<br/>
+
+![cursor-based-itemReader](./images/cursor-based-itemReader.png)  
+
+<br/>
+
+Java의 `ResultSet`클래스는 `Cursor`를 조작하여 데이터를 읽어 옵니다  
+데이터 베이스에 Cursor를 지정해 두고 `next`를 통해서 Cursor의 위치를 **이동해 가면서 차례대로** 가져옵니다  
+
+<br/>
+
+이러한 전략에 따라 장점과 단점 그리고 유의 해야할 점이 발생 합니다  
+먼저 이러한 유의사항들을 알아보고 Spring Batch에 제공하는 `3가지`의 Cursor-based ItemReader에 대해 알아보겠습니다  
+
+---
+
+### 장점   
+
+1. **뛰어난 퍼포먼스를 가진다**:thumbsup:  
+    모든 데이터를 조회한 뒤 Cursor설정하고 이동하는 방식으로 데이터를 가져오는 방식은 `높은 성능`을 보여 줍니다   
+    때문에 이슈가 되지 않는 한 `Default ItemReader`로 사용하기 좋습니다  
+<br/>    
+2. **Batch 프로세스 동작동안에 데이터 무결성이 유지된다**    
+   스냅샷 방식으로 동작하기 때문에 데이터의 변경에 대해 안전합니다  
+   Connection을 맺고 <span class='red_font'>Close</span>하기 전까지 DB 트랜잭션을 무시 합니다  
+
+<br/>
+
+### 단점  
+1. **메모리 사용량이 높다**  
+    스냅샷 방식을 사용하기 때문에 많은 메모리를 사용합니다   
+<br/>    
+2. **멀티 쓰레드 환경 사용 불가**    
+    `단일 ResultSet`을 가지기 때문에 <span class='red_font'>Thread Safe 하지 않습니다</span>  
+<br/>
+3. **긴 Timeout 설정이 필요할 수 있다**  
+    `Cursor`가 <span class='red_font'>Close</span>전까지 유지되기 때문에 충분한 `Timeout 시간`이 필요합니다  
+
+<br/>
+<br/>
+
+**장점보다 단점이 많아 보이지만 `성능상 유리`하기 때문에 사용하기 좋습니다**  
+멀티 쓰레드 환경이 아니고 메모리 사용량도 엄청큰 대량의 데이터가 아닌 이상 사용상 문제는 없습니다  
+
+<br/>
+
+---  
+
+다음은 Spring Batch에서 제공하는 `Cursor-based ItemReader 3가지`에 대해 알아보겠습니다  
+
 **Cursor-based ItemReader**  
 >1. JdbcCursorItemReader   
 >2. HibernateCursorItemReader  
 >3. StoredProcedureItemReader  
+
+
+
+
 
 
 ## Paging ItemReader  
