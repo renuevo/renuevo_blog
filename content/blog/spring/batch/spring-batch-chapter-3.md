@@ -42,6 +42,98 @@ Spring Batch는 이러한 구현을 사용자가 직접하지 않고 사용할 �
 
 <br/>
 
+
+## Sample DB Setting  
+ItemReader를 테스트할 DB를 먼저 세팅해 보겠습니다  
+테스트에 사용할 DB는 `H2`를 선택했습니다  
+`MYSQL`을 사용하시고 싶으신 분들은 Meta Table을 생성하셔서 사용하셔도 됩니다  
+
+![Spring Batch Meta Data Schema](./images/meta-data-erd.png)  
+
+`H2`의 경우 `Meta Table`을 자동으로 생성해주기 때문에 별다른 설정 없이 테스트 가능합니다  
+다른 DB들 경우 각각의 쿼리로 해당 Table들을 생성해 주어야 정상적으로 작동합니다  
+
+[MYSQL-Spring-Batch-SCHEMA](https://github.com/spring-projects/spring-batch/blob/master/spring-batch-core/src/main/resources/org/springframework/batch/core/schema-mysql.sql)  
+
+<br/>
+
+의존관계를 Gradle에 추가해 줍니다  
+```groovy
+
+dependencies {
+ ...
+    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    runtimeOnly 'com.h2database:h2'
+ ...
+}
+
+```  
+
+그리고 application-property로 DB설정을 해주겠습니다  
+여러개의 Job을 각각 실행해보기 위해서 batch-job-names을 설정합니다  
+
+```groovy
+
+spring:
+  datasource:
+    hikari:
+      driver-class-name: org.h2.Driver
+      jdbc-url: jdbc:h2:mem:spring-batch
+      username: sa
+      password:
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.H2Dialect
+  batch:
+    job:
+      names: ${job.name:NONE}   //--job.name=jdbcCursorItemReaderJob
+
+```
+
+schema.sql
+```sql
+
+DROP TABLE IF EXISTS pay;
+DROP TABLE IF EXISTS pay2;
+DROP TABLE IF EXISTS tax;
+
+create table pay (
+  id         bigint not null auto_increment,
+  amount     bigint,
+  tx_name     varchar(255),
+  tx_date_time datetime,
+  primary key (id)
+);
+
+create table pay2 (
+  id         bigint not null auto_increment,
+  amount     bigint,
+  tx_name     varchar(255),
+  tx_date_time datetime,
+  primary key (id)
+);
+
+create table tax (
+  id        bigint not null auto_increment,
+  pay_id    bigint,
+  pay_tax   bigint,
+  location  varchar(255),
+  primary key (id)
+);
+
+
+insert into pay (amount, tx_name, tx_date_time) VALUES (1000, 'trade1', '2018-09-10 00:00:00');
+insert into pay (amount, tx_name, tx_date_time) VALUES (2000, 'trade2', '2018-09-10 00:00:00');
+insert into pay (amount, tx_name, tx_date_time) VALUES (3000, 'trade3', '2018-09-10 00:00:00');
+insert into pay (amount, tx_name, tx_date_time) VALUES (4000, 'trade4', '2018-09-10 00:00:00');
+
+```
+
+
+
 ## Cursor-based ItemReader  
 먼저 설명드릴 것은 Batch 시스템의 `default`로 쓰인다고 할 수 있는 `Cursor Based ItemReader`입니다  
 
@@ -101,11 +193,13 @@ Java의 `ResultSet`클래스는 `Cursor`를 조작하여 데이터를 읽어 옵
 >3. StoredProcedureItemReader  
 
 
-
-
-
-
 ## Paging ItemReader  
 **Paging ItemReader**  
 >1. JdbcPagingItemReader  
 >2. JpaPagingItemReader   
+
+
+
+---
+
+[Cursor-based ItemReader Thread Safe](https://stackoverflow.com/questions/28719836/spring-batch-problems-mix-data-when-converting-to-multithread)
