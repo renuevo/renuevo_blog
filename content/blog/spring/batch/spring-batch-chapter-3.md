@@ -57,7 +57,7 @@ ItemReader를 테스트할 DB를 먼저 세팅해 보겠습니다
 
 <br/>
 
-의존관계를 Gradle에 추가해 줍니다  
+의존관계를 Gradle에 추가해 줍니다 :point_right: [Code](https://github.com/renuevo/spring-boot-in-action/blob/master/spring-boot-batch-in-action/build.gradle)     
 ```groovy
 
 dependencies {
@@ -70,8 +70,11 @@ dependencies {
 
 ```  
 
-그리고 application-property로 DB설정을 해주겠습니다  
-여러개의 Job을 각각 실행해보기 위해서 batch-job-names을 설정합니다  
+<br/>
+
+그리고 `application-property`로 `DB설정`을 해주겠습니다 :point_right: [Code](https://github.com/renuevo/spring-boot-in-action/blob/master/spring-boot-batch-in-action/src/main/resources/application.yml)  
+Spring Boot에서 간단한 property설정만으로 `DataSource`와 `EntityManagerFactory`를 생성해 주기 때문에 편합니다  
+추가적으로 여러개의 Job을 각각 실행해보기 위해서 `batch-job-names`을 설정합니다  
 
 ```groovy
 
@@ -79,7 +82,8 @@ spring:
   datasource:
     hikari:
       driver-class-name: org.h2.Driver
-      jdbc-url: jdbc:h2:mem:spring-batch
+      jdbc-url: jdbc:h2:mem:spring-batch #In-memory  /* highlight-line */   
+      #jdbc-url: jdbc:h2:file:./spring-boot-batch-in-action/data/spring-batch;AUTO_SERVER=TRUE; #File-based  /* highlight-line */  
       username: sa
       password:
   jpa:
@@ -89,11 +93,18 @@ spring:
     database-platform: org.hibernate.dialect.H2Dialect
   batch:
     job:
-      names: ${job.name:NONE}   //--job.name=jdbcCursorItemReaderJob
+      names: ${job.name:NONE}   #--job.name=jdbcCursorItemReaderJob /* highlight-line */  
 
 ```
 
-schema.sql
+<br/>
+
+다음은 `Schema 설정`입니다 :point_right: [Code](https://github.com/renuevo/spring-boot-in-action/blob/master/spring-boot-batch-in-action/src/main/resources/schema.sql)   
+`H2`를 사용하기 때문에 Batch관련 설정은 필요없지만 Sample 데이터를 설정해 주겠습니다
+Spring boot 초기데이터를 생성하도록 `src/main/resources/schema.sql`파일을 생성해 줍니다    
+`in-memory`방식으로 해서 기존 테이블 확인은 필요없지만 `MYSQL`로 테스트 해볼수도 있기때문에 <span class='red_font'>DROP</span> 조건을 추가하였습니다  
+
+<span class='code_header'>schema.sql</span>
 ```sql
 
 DROP TABLE IF EXISTS pay;
@@ -125,14 +136,16 @@ create table tax (
 );
 
 
-insert into pay (amount, tx_name, tx_date_time) VALUES (1000, 'trade1', '2018-09-10 00:00:00');
-insert into pay (amount, tx_name, tx_date_time) VALUES (2000, 'trade2', '2018-09-10 00:00:00');
-insert into pay (amount, tx_name, tx_date_time) VALUES (3000, 'trade3', '2018-09-10 00:00:00');
-insert into pay (amount, tx_name, tx_date_time) VALUES (4000, 'trade4', '2018-09-10 00:00:00');
+insert into pay (amount, tx_name, tx_date_time) VALUES (1000, 'trade1', '2020-03-11 00:00:00');
+insert into pay (amount, tx_name, tx_date_time) VALUES (2000, 'trade2', '2020-03-12 00:00:00');
+insert into pay (amount, tx_name, tx_date_time) VALUES (3000, 'trade3', '2020-03-13 00:00:00');
+insert into pay (amount, tx_name, tx_date_time) VALUES (4000, 'trade4', '2020-03-14 00:00:00');
 
 ```
+이것으로 테스트를 돌리기 위한 초기 데이터 세팅이 끝났습니다  
+다음은 이제 본격적으로 ItemReader의 구현을 확인해 보도록 하겠습니다  
 
-
+<br/>
 
 ## Cursor-based ItemReader  
 먼저 설명드릴 것은 Batch 시스템의 `default`로 쓰인다고 할 수 있는 `Cursor Based ItemReader`입니다  
