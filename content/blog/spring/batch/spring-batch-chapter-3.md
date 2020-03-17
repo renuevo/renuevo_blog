@@ -143,7 +143,7 @@ insert into pay (amount, tx_name, tx_date_time) VALUES (4000, 'trade4', '2020-03
 
 ```
 이것으로 테스트를 돌리기 위한 초기 데이터 세팅이 끝났습니다  
-다음은 이제 본격적으로 ItemReader의 구현을 확인해 보도록 하겠습니다  
+다음은 이제 본격적으로 ItemReader의 살펴 보도록 하겠습니다  
 
 <br/>
 
@@ -205,6 +205,142 @@ Java의 `ResultSet`클래스는 `Cursor`를 조작하여 데이터를 읽어 옵
 >2. HibernateCursorItemReader  
 >3. StoredProcedureItemReader  
 
+<br/>
+
+### JdbcCursorItemReader
+`JdbcCursorItemReader`는 가장 `기본`이 되는 `ItemReader`입니다 :point_right:  [Code](https://github.com/renuevo/spring-boot-in-action/blob/master/spring-boot-batch-in-action/src/main/java/com/github/renuevo/config/JdbcCursorItemReaderJobConfig.java)    
+구현도 간편하고 간편하게 구현 가능합니다  
+먼저 데이터를 담을 `VO 객체`를 하나 만들어 줍니다  
+여기서는 이후 예제들에서 사용할 JPA도 고려해서 `Entity`로 생성해 주었습니다  
+
+[Pay.class](https://github.com/renuevo/spring-boot-in-action/blob/master/spring-boot-batch-in-action/src/main/java/com/github/renuevo/entity/Pay.java)  
+```java
+
+@Setter
+@Getter
+@Entity
+@ToString
+@NoArgsConstructor
+public class Pay {
+
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private Long amount;
+    private String txName;
+    private LocalDateTime txDateTime;
+
+    public Pay(Long amount, String txName, String txDateTime) {
+        this.amount = amount;
+        this.txName = txName;
+        this.txDateTime = convertStringToTime(txDateTime);
+    }
+
+    public Pay(Long id, Long amount, String txName, String txDateTime) {
+        this.id = id;
+        this.amount = amount;
+        this.txName = txName;
+        this.txDateTime = convertStringToTime(txDateTime);
+    }
+
+    private LocalDateTime convertStringToTime(String txDateTime) {
+        return LocalDateTime.parse(txDateTime, DATE_TIME_FORMATTER);
+    }
+}
+
+
+```
+:question: 참고로 어노테이션이 많은 게 보기 싫을 수도 있지만 `Entity`에 대해서는 `양방향 관계`로 `deadlock`이 생길 수 있어서 `@Data`을 사용하지 않고 있습니다  
+[왜 @Data을 사용하지 않았는가?](https://www.inflearn.com/questions/5788)  
+
+<br/>
+
+다음은 드디어 `JdbcCursorItemReader`의 구현을 살펴 보겠습니다 :point_right: [Code](https://github.com/renuevo/spring-boot-in-action/blob/master/spring-boot-batch-in-action/src/main/java/com/github/renuevo/config/JdbcCursorItemReaderJobConfig.java)    
+```java
+
+@Slf4j
+@Configuration
+@AllArgsConstructor
+public class JdbcCursorItemReaderJobConfig {
+
+    private final DataSource dataSource;
+    private static final int chunkSize = 10;    //트랜잭션 범위
+
+    ...
+
+    @Bean
+    public Step jdbcCursorItemReaderStep() {
+        return stepBuilderFactory.get("jdbcCursorItemReaderStep")   //step name
+                .<Pay, Pay>chunk(chunkSize) //Reader의 반환타입 & Writer의 파라미터타입
+                .reader(jdbcCursorItemReader())
+                .writer(list -> list.stream()
+                                    .map(Pay::toString)
+                                    .forEach(log::info)
+                ).build();
+    }
+
+    @Bean
+    public JdbcCursorItemReader<Pay> jdbcCursorItemReader() {
+        return new JdbcCursorItemReaderBuilder<Pay>() 
+                .name("jdbcCursorItemReader")   //reader name
+                .fetchSize(chunkSize) 
+                .dataSource(dataSource)
+                .rowMapper(new BeanPropertyRowMapper<>(Pay.class)) /* highlight-line */  
+                .sql("SELECT id, amount, tx_name, tx_date_time FROM pay")
+                .build();
+    }
+
+   ...
+}
+
+```
+ 
+`JdbcCursorItemReaderBuilder`의 요소를 살펴 보겠습니다  
+1. name : ItemReader의 이름  
+2. fetchSize : 한번에 읽어올 Size  
+3. dataSource : 연결할 DB의 dataSource  
+4. rowMapper : 가져온 data를 Object로 바꿔줄 Mapper  
+5. sql : 쿼리!  
+
+각각의 요소들은 직관적이게 잘 만들어져 있어서 이해하는데 어려움은 없을 것입니다  
+
+<br/>
+
+**여기서 rowMapper만 좀더 살펴 보겠습니다**    
+1. `BeanPropertyRowMapper`는 Class를 받아서 각각의 이름에 맞게 객체를 매핑해줍니다  
+    `Converter`을 등록하여 타입 변환 전략도 확장 가능합니다 
+    [BeanPropertyRowMapper 설명 더보기](https://github.com/benelog/spring-jdbc-tips/blob/master/spring-jdbc-core.md#beanpropertyrowmapper)  
+    <br/>
+2. `ColumnMapRowMapper`을 사용하면 Map의 형태로 받아 올 수 있습니다 
+    [ColumnMapRowMapper 설명 더보기](https://github.com/benelog/spring-jdbc-tips/blob/master/spring-jdbc-core.md#columnmaprowmapper)   
+    <br/>
+3. `RowMapper Custom 구현`도 가능합니다  
+    ```java
+
+   public class CustomerPayRowMapper implements RowMapper<Pay> {
+     
+       public static final String ID_COLUMN = "id";
+       public static final String AMOUNT_COLUMN = "amount";
+       public static final String TX_NAME_COLUMN = "tx_name";
+       public static final String TX_DATE_TIME_COLUMN = "tx_date_time";
+   
+       public Pay mapRow(ResultSet rs, int rowNum) throws SQLException {
+           return new Pay(rs.getLong(ID_COLUMN),
+                          rs.getLong(AMOUNT_COLUMN),
+                          rs.getString(TX_NAME_COLUMN),
+                          rs.getString(TX_DATE_TIME_COLUMN));
+       }
+   }
+   
+   ```
+
+<br/>
+
+그리고 `--job.name=jdbcCursorItemReaderJob`과 같이 실행해보면 다음과 같은 결과를 얻을 수 있습니다  
+
+![jdbcCursorItemReader](./images/jdbcCursorItemReader.PNG)  
 
 ## Paging ItemReader  
 **Paging ItemReader**  
@@ -212,7 +348,11 @@ Java의 `ResultSet`클래스는 `Cursor`를 조작하여 데이터를 읽어 옵
 >2. JpaPagingItemReader   
 
 
+[Chunk Size와 Paging Size](https://renuevo.github.io/spring/batch/spring-batch-chapter-1/#page-size-%EC%99%80-chunk-size)  
+
+
 
 ---
 
 [Cursor-based ItemReader Thread Safe](https://stackoverflow.com/questions/28719836/spring-batch-problems-mix-data-when-converting-to-multithread)
+[spring-jdbc-tips](https://github.com/benelog/spring-jdbc-tips/blob/master/spring-jdbc-core.md#beanpropertyrowmapper)
