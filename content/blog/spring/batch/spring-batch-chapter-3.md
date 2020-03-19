@@ -342,6 +342,66 @@ public class JdbcCursorItemReaderJobConfig {
 
 ![jdbcCursorItemReader](./images/jdbcCursorItemReader.PNG)  
 
+<br/>
+
+### HibernateCursorItemReader
+다음은 `HibernateCursorItemReader`입니다   
+HibernateCursorItemReader는 DataSource 대신에 SessionFactory를 사용합니다  
+```java 
+@Bean
+public HibernateCursorItemReader hibernateCursorItemReader(SessionFactory sessionFactory) {
+	return new HibernateCursorItemReaderBuilder<Pay>()
+			.name("hibernateCursorItemReader")
+			.sessionFactory(sessionFactory)
+			.queryString("from Pay")
+			.build();
+}
+```
+
+<br/>
+
+### StoredProcedureItemReader [Docs](https://docs.spring.io/spring-batch/docs/current/reference/html/readersAndWriters.html#StoredProcedureItemReader)  
+다음은 `StoredProcedureItemReader`입니다   
+DB에 Procedure로 등록해둔 액션으로 가져오는 방식입니다  
+개인적으로 별로 선호하지 않는 방법입니다  
+관리 포인트도 2개로 나뉘어 있고 DB에 따라 Recruit 받는 값도 다릅니다  
+
+```text
+As a returned ResultSet (used by SQL Server, Sybase, DB2, Derby, and MySQL).
+As a ref-cursor returned as an out parameter (used by Oracle and PostgreSQL).
+```
+
+<br/>
+
+그리서 Document에 있는 설정 방법만을 보고 넘어가도록 하겠습니다  
+```java 
+@Bean
+public StoredProcedureItemReader storedProcedureItemReader() {
+	StoredProcedureItemReader storedProcedureItemReader = new StoredProcedureItemReader();
+	storedProcedureItemReader.setDataSource(dataSource);
+	storedProcedureItemReader.setProcedureName("sp_pay");
+	storedProcedureItemReader.setRowMapper(new BeanPropertyRowMapper<>(Pay.class));
+	return storedProcedureItemReader;
+}
+```
+
+<br/>
+<br/>
+
+이게 `Cursor-based ItemReader`에 대한 설명이 끝났습니다  
+마지막으로 정리해보면
+
+<br/>
+
+* **퍼포먼스가 우수하다**
+* **지속적인 connection을 가지고 있어야 한다**
+* **병렬처리가 불가능하다**
+
+<br/>
+
+라는 `특성`을 꼭 기억하고 사용하시기 바랍니다  
+다음은 이어서 PagingItemReader를 알아 보도록 하겠습니다  
+
 ## Paging ItemReader  
 **Paging ItemReader**  
 >1. JdbcPagingItemReader  
@@ -353,6 +413,6 @@ public class JdbcCursorItemReaderJobConfig {
 
 
 ---
-
+[Spring Batch Docs](https://docs.spring.io/spring-batch/docs/current/reference/html/readersAndWriters.html#database)  
 [Cursor-based ItemReader Thread Safe](https://stackoverflow.com/questions/28719836/spring-batch-problems-mix-data-when-converting-to-multithread)
 [spring-jdbc-tips](https://github.com/benelog/spring-jdbc-tips/blob/master/spring-jdbc-core.md#beanpropertyrowmapper)
