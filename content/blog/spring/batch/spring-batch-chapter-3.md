@@ -403,10 +403,58 @@ public StoredProcedureItemReader storedProcedureItemReader() {
 다음은 이어서 PagingItemReader를 알아 보도록 하겠습니다  
 
 ## Paging ItemReader  
+다음은 `Paging ItemReader`입니다  
+
+<br/>
+
+//image
+
+<br/>
+
+`Paging ItemReader`는 이전 `Cursor방식`과는 다르게 매번 호출마다 `Connection`을 맺게 됩니다  
+때문에 얻어지는 장점과 단점 그리고 <span class=red_font>주의</span>해야할 사항들이 생기게 됩니다  
+
+---
+
+### 장점   
+
+1. **Timeout 설정에서 자유롭다**  
+    한번의 `Connection`을 유지하는 방식이 아니기 때문에 Itmeout설정에 문제가 없습니다  
+<br/>    
+2. **매번 새로운 참조로 메모리 이슈가 없다**    
+   이전 Cursor 방식과 달리 매번 새로운 연결로 실시간 데이터를 받아 오기 때문에 스냅샷 같은 상태값 저장을 하지 않습니다  
+   하지만 이 `장점`때문에 데이터 <span clsss='red_font'>무결성이 깨지게</span> 됩니다    
+<br/>   
+3. **병렬처리가 가능하다**    
+   병렬로 많은 양의 데이터를 빠르게 처리하는 경우 `Paging ItemReader`를 사용하셔야합니다    
+
+### 단점  
+1. **속도가 느리다**  
+    매번 새로운 `Connection`과 `Sorting`으로 속도가 느린편입니다  
+<br/>    
+2. **Batch 프로세스 동작동안에 데이터 무결성이 유지되지 않는다**    
+     실시간 데이터를 탐색하는 방식이기 때문에 중간에 데이터가 바뀔수 있습니다  
+     이점을 유의해서 개발을 해야합니다 :point_right: [Paging Reader 주의사항](https://jojoldu.tistory.com/337)  
+<br/>   
+3. **정렬이 필수적으로 필요하다**  
+    주의 사항과 같은 <span clsss='red_font'>단점</span>입니다  
+    `offset방식`으로 값을 읽어오는 특성때문에 `Sorting`을 하지 않을 경우  차례로 데이터를 못 가져 옵니다  
+<br/>   
+<br/>   
+
+**장점보다 단점이 많아 보이지만 `성능상 유리`하기 때문에 사용하기 좋습니다**  
+멀티 쓰레드 환경이 아니고 메모리 사용량도 엄청큰 대량의 데이터가 아닌 이상 사용상 문제는 없습니다  
+
+<br/>
+
+---
+
+이제 그럼 Spring Batch에서 제공하는 `Paging ItemReader`를 살펴 보겠습니다
+일부 블로그 글에서는 `HibernatePagingItemReader`도 있지만 여기서는 [Document](https://docs.spring.io/spring-batch/docs/current/reference/html/readersAndWriters.html#database)에 나와있는 아래 `두가지`만 설명합니다  
+
 **Paging ItemReader**  
 >1. JdbcPagingItemReader  
 >2. JpaPagingItemReader   
-
 
 [Chunk Size와 Paging Size](https://renuevo.github.io/spring/batch/spring-batch-chapter-1/#page-size-%EC%99%80-chunk-size)  
 
