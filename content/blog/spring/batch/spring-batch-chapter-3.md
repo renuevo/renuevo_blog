@@ -209,7 +209,7 @@ Java의 `ResultSet`클래스는 `Cursor`를 조작하여 데이터를 읽어 옵
 
 ### JdbcCursorItemReader
 `JdbcCursorItemReader`는 가장 `기본`이 되는 `ItemReader`입니다 :point_right:  [Code](https://github.com/renuevo/spring-boot-in-action/blob/master/spring-boot-batch-in-action/src/main/java/com/github/renuevo/config/JdbcCursorItemReaderJobConfig.java)    
-구현도 간편하고 간편하게 구현 가능합니다  
+간편하게 구현 가능합니다  
 먼저 데이터를 담을 `VO 객체`를 하나 만들어 줍니다  
 여기서는 이후 예제들에서 사용할 JPA도 고려해서 `Entity`로 생성해 주었습니다  
 
@@ -407,7 +407,7 @@ public StoredProcedureItemReader storedProcedureItemReader() {
 
 <br/>
 
-//image
+![pagingitemReader](./images/pagingitemReader.png)  
 
 <br/>
 
@@ -460,11 +460,76 @@ public StoredProcedureItemReader storedProcedureItemReader() {
 
 ### JdbcPaingItemReader  
 `JdbcPagingItemReader`는 PaingItemReader의 가장 기본적인 Reader 입니다 :point_right: [Code](https://github.com/renuevo/spring-boot-in-action/blob/master/spring-boot-batch-in-action/src/main/java/com/github/renuevo/config/JdbcPagingItemReaderJobConfig.java)  
+앞서 Cursor-Base처럼 간편하게 구현 가능합니다  
+예제 `데이터`와`VO`는 위에서 사용했던 `Pay.class`를 그대로 사용합니다  
+
+```java
+
+    @Bean
+    public JdbcPagingItemReader<Pay> jdbcPagingItemReader() throws Exception {
+        Map<String, Object> parameterValues = Maps.newHashMap();
+        parameterValues.put("amount", 2000);    //조건절 파라미터
+    
+        return new JdbcPagingItemReaderBuilder<Pay>()
+                /* highlight-range{1-2} */
+                .pageSize(chunkSize)
+                .fetchSize(chunkSize)
+                .dataSource(dataSource)
+                .rowMapper(new BeanPropertyRowMapper<>(Pay.class))
+                /* highlight-range{1-2} */
+                .queryProvider(createQueryProvider())
+                .parameterValues(parameterValues)   //Provider Where에 조건 세팅
+                .name("jdbcPagingItemReader")
+                .build();
+    }
 
 
-[Chunk Size와 Paging Size](https://renuevo.github.io/spring/batch/spring-batch-chapter-1/#page-size-%EC%99%80-chunk-size)  
+    @Bean
+    public PagingQueryProvider createQueryProvider() throws Exception {
+        SqlPagingQueryProviderFactoryBean queryProviderFactoryBean = new SqlPagingQueryProviderFactoryBean();
+        queryProviderFactoryBean.setDataSource(dataSource); //Datasource를 통한 DB Type 인식해서 Provider 자동 인식
 
+        /* highlight-range{1-3} */
+        queryProviderFactoryBean.setSelectClause("id, amount, tx_name, tx_date_time");
+        queryProviderFactoryBean.setFromClause("from pay");
+        queryProviderFactoryBean.setWhereClause("where amount >= :amount"); //조건
 
+        Map<String, Order> sortKeys = Maps.newHashMap();
+
+        //Paging은 매번 다른 Connection을 맺기 때문에 Order가 필수
+        sortKeys.put("id", Order.ASCENDING); /* highlight-line */
+
+        queryProviderFactoryBean.setSortKeys(sortKeys);
+        return queryProviderFactoryBean.getObject();
+    }
+
+```
+JdbcPageItemReader는 크게 `2개`의 메소드로 나눠서 구성합니다  
+PagingItemReader는 `JdbcPagingItemReaderBuilder`로 틀을 구성하는데 주요설정은 `2부분`으로 나뉩니다
+Reader의 `Size`지정과 `QueryProvider`로 Query를 정의합니다  
+
+<br/>
+
+Size는 `PageSize`와 `FetchSize` 2가지가 존재합니다  
+서로 다른의미를 가지며 같은 크기를 지정하는 것이 일반적이라 `chunkSize`를 똑같이 지정하였습니다  
+관련해서 자세한 사항은 이전 포스팅을 참고해주세요 :point_right: [Chunk Size와 Paging Size](https://renuevo.github.io/spring/batch/spring-batch-chapter-1/#page-size-%EC%99%80-chunk-size)  
+
+<br/>
+
+`QueryProvider`는 `queryProviderFactoryBean`로 지정해 줍니다  
+쿼리의 기본구조로 `setFromClause`, `setFromClause`, `setWhereClause`설정하여 쿼리를 생성합니다  
+`JPQL`로 쿼리를 작성하였고 관련 유동적 Parameter는 `parameterValues`를 통해 지정해 주었습니다  
+그리고 PagingItemReader의 <span class='red_font'>필수요소</span>인 `정렬`이 필요합니다  
+`setSortKeys`를 통해 정렬을 설정하는 것으로 PagingItemReader의 생성이 끝이 납니다  
+
+<br/>
+
+다음과 같이 설정하면 정상적으로 Pay를 읽어서 출력됩니다  
+![jdbcPagingItemReader](./images/jdbcPagingItemReader.PNG)  
+
+<br/>
+
+### JpaPagingItemReader   
 
 ---
 ## 관련 참고  
