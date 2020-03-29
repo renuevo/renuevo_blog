@@ -456,11 +456,18 @@ public StoredProcedureItemReader storedProcedureItemReader() {
 >1. JdbcPagingItemReader  
 >2. JpaPagingItemReader   
 
+<br/>
+
+### JdbcPaingItemReader  
+`JdbcPagingItemReader`는 PaingItemReader의 가장 기본적인 Reader 입니다 :point_right: [Code](https://github.com/renuevo/spring-boot-in-action/blob/master/spring-boot-batch-in-action/src/main/java/com/github/renuevo/config/JdbcPagingItemReaderJobConfig.java)  
+
+
 [Chunk Size와 Paging Size](https://renuevo.github.io/spring/batch/spring-batch-chapter-1/#page-size-%EC%99%80-chunk-size)  
 
 
 
 ---
+## 관련 참고  
 [Spring Batch Docs](https://docs.spring.io/spring-batch/docs/current/reference/html/readersAndWriters.html#database)  
 [Cursor-based ItemReader Thread Safe](https://stackoverflow.com/questions/28719836/spring-batch-problems-mix-data-when-converting-to-multithread)
 [spring-jdbc-tips](https://github.com/benelog/spring-jdbc-tips/blob/master/spring-jdbc-core.md#beanpropertyrowmapper)
