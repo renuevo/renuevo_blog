@@ -530,9 +530,30 @@ Size는 `PageSize`와 `FetchSize` 2가지가 존재합니다
 <br/>
 
 ### JpaPagingItemReader   
+마지막으로 알아볼 `JpaPagingItemReader`입니다 [Code](https://github.com/renuevo/spring-boot-in-action/blob/master/spring-boot-batch-in-action/src/main/java/com/github/renuevo/config/JpaPagingItemReaderJobConfig.java)  
+앞서 본 JdbcPagingItemReader 보다 직관적이여서 저는 이 방법을 더 선호합니다  
+
+```java
+
+    @Bean
+    public JpaPagingItemReader<Pay> jpaPagingItemReader() {
+        return new JpaPagingItemReaderBuilder<Pay>()
+                .name("jpaPagingItemReader")
+                .entityManagerFactory(entityManagerFactory) //DataSource가 아닌 EntityManagerFactory를 통한 접근 /* highlight-line */
+                .pageSize(chunkSize)
+                .queryString("SELECT p FROM Pay p WHERE amount >= 2000 ORDER BY id ASC")  //ORDER 조건은 필수! /* highlight-line */
+                .build();
+    }
+
+```
+다음과 같이 간편하게 구현 가능합니다  
+<span class='red_font'>주의할 점</span>인 `정렬조건` 추가만 안 잊으면 됩니다   
+
 
 ---
 ## 관련 참고  
+[RepositoryItemReader](https://stackoverflow.com/questions/43003266/spring-batch-with-spring-data/43986718#43986718)
 [Spring Batch Docs](https://docs.spring.io/spring-batch/docs/current/reference/html/readersAndWriters.html#database)  
 [Cursor-based ItemReader Thread Safe](https://stackoverflow.com/questions/28719836/spring-batch-problems-mix-data-when-converting-to-multithread)
 [spring-jdbc-tips](https://github.com/benelog/spring-jdbc-tips/blob/master/spring-jdbc-core.md#beanpropertyrowmapper)
+[기억보단 기록을](https://jojoldu.tistory.com/336)
