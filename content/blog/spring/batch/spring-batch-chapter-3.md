@@ -82,8 +82,9 @@ spring:
   datasource:
     hikari:
       driver-class-name: org.h2.Driver
-      jdbc-url: jdbc:h2:mem:spring-batch #In-memory  /* highlight-line */   
-      #jdbc-url: jdbc:h2:file:./spring-boot-batch-in-action/data/spring-batch;AUTO_SERVER=TRUE; #File-based  /* highlight-line */  
+        /* highlight-range{1-2} */  
+      jdbc-url: jdbc:h2:mem:spring-batch #In-memory   
+      #jdbc-url: jdbc:h2:file:./spring-boot-batch-in-action/data/spring-batch;AUTO_SERVER=TRUE; #File-based  
       username: sa
       password:
   jpa:
