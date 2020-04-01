@@ -556,9 +556,9 @@ Reader의 `Size`지정과 `QueryProvider`로 Query를 정의합니다
     public JpaPagingItemReader<Pay> jpaPagingItemReader() {
         return new JpaPagingItemReaderBuilder<Pay>()
                 .name("jpaPagingItemReader")
-                .entityManagerFactory(entityManagerFactory) //DataSource가 아닌 EntityManagerFactory를 통한 접근 /* highlight-line */
+                .entityManagerFactory(entityManagerFactory) //DataSource가 아닌 EntityManagerFactory를 통한 접근 /* highlight-line */  
                 .pageSize(chunkSize)
-                .queryString("SELECT p FROM Pay p WHERE amount >= 2000 ORDER BY id ASC")  //ORDER 조건은 필수! /* highlight-line */
+                .queryString("SELECT p FROM Pay p WHERE amount >= 2000 ORDER BY id ASC")  //ORDER 조건은 필수! /* highlight-line */  
                 .build();
     }
 
