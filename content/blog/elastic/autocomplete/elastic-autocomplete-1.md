@@ -5,6 +5,7 @@ category: 'Elastic'
 ---
 
 *Elastic을 활용하여 다음 3가지 방법의 자동완성 서비스를 구현하는 기술을 다룹니다*   
+*Elastic 7.x 버젼을 기준으로 진행합니다*   
 
 1. Prefix Queries를 활용한 자동완성  
 2. Index 색인을 통한 Search  
@@ -16,12 +17,18 @@ category: 'Elastic'
 
 ---
 
+## Prefix Query  
+먼저 테스트 데이터를 준비해 줍니다  
+Google에 스팀게임을 검색해서 나오는 자동완성을 가져왔습니다  
 
+<br/>
+
+<span class="code_header">Autocomplete Example Data</span> 
 ```json
 
 POST _bulk
 {"index":{"_index":"autocomplete_test_1","_id":"1"}}
-{"name":"스팀게임"}
+{"word":"스팀게임"}
 {"index":{"_index":"autocomplete_test_1","_id":"2"}}
 {"name":"스팀게임 추천"}
 {"index":{"_index":"autocomplete_test_1","_id":"3"}}
