@@ -60,7 +60,7 @@ word에 2가지 속성으로 색인을 하였습니다
          "text" : "스팀게임 추천"
        }
     ```
-   ![](./images/analyzer-test.png)
+   ![analyzer-test](./images/analyzer-test.png)  
     
 2. `keyword` type은 텍스트 자체를 키로 색인을 합니다  
     **스팀게임 추천 :** `스팀게임 추천`
@@ -74,24 +74,25 @@ POST _bulk
 {"index":{"_index":"autocomplete_test_1","_id":"1"}}
 {"word":"스팀게임"}
 {"index":{"_index":"autocomplete_test_1","_id":"2"}}
-{"name":"스팀게임 추천"}
+{"word":"스팀게임 추천"}
 {"index":{"_index":"autocomplete_test_1","_id":"3"}}
-{"name":"스팀게임 추천 2019"}
+{"word":"스팀게임 추천 2019"}
 {"index":{"_index":"autocomplete_test_1","_id":"4"}}
-{"name":"스팀게임 환불"}
+{"word":"스팀게임 환불"}
 {"index":{"_index":"autocomplete_test_1","_id":"5"}}
-{"name":"스팀게임 싸게"}
+{"word":"스팀게임 싸게"}
 {"index":{"_index":"autocomplete_test_1","_id":"6"}}
-{"name":"스팀게임 순위"}
+{"word":"스팀게임 순위"}
 {"index":{"_index":"autocomplete_test_1","_id":"7"}}
-{"name":"스팀게임 추천 2020"}
+{"word":"스팀게임 추천 2020"}
 {"index":{"_index":"autocomplete_test_1","_id":"8"}}
-{"name":"스팀게임 환불하는법"}
+{"word":"스팀게임 환불하는법"}
+
 
 ```
 자동완성 데이터는 Google에 스팀게임을 검색해서 나오는 자동완성을 가져왔습니다  
 
-![](./images/google-search.png)
+![google-search](./images/google-search.png)  
 
 <br/>
 
@@ -139,7 +140,7 @@ GET autocomplete_test_1/_search
 
 ```
 
-![스마게 검색 이미지]()
+![search-prefix-text](./images/search-prefix-text.png)  
 정상적으로 모든 `스팀게임`의 키워드를 기준 앞글자가 일치하는 모든 결과가 검색된걸 확인할 수 있습니다  
 
 <br/>
@@ -161,15 +162,15 @@ GET autocomplete_test_1/_search
 ```
 
 
-![스마게 검색 이미지]()
+![search-prefix-keyword](./images/search-prefix-keyword.png)  
 Text Type과 같이 모든 단어가 검색된걸 확인할 수 있습니다  
 
 둘의 검색을 비교해 보면 다음과 같습니다  
 
-![]()
+![elastic-search-index](./images/elastic-search-index.png)
 
 그래서 둘 모두 같은 결과를 내놓았습니다  
-만약 Text Type에 형태소에서 스팀게임이라는 단어를 형태소로 잡지 않았다면 전혀 다른 결과가 나오게 됩니다  
+만약 Text Type에 형태소에서 `스팀게임`이라는 단어를 `Index Key`로 잡지 않았다면 전혀 다른 결과가 나오게 됩니다  
 
 <br/>
 
@@ -190,10 +191,10 @@ GET autocomplete_test_1/_search
 
 ```
 
-![추천 검색 이미지]()  
+![search-prefix-text2](./images/search-prefix-text2.png)  
 예상한것과 같이 추천이 뒤에 포함된 결과들이 검색된걸 확인할 수 있습니다  
 
-![naver-recommend](./images/naver-recommend.png)
+![naver-recommend](./images/naver-recommend.png)  
 다음과 같이 뒤에 단어까지 확장된 검색이 필요하다면 Text Type의 색인된 검색결과를 입력하는게 효율적입니다  
 
 
@@ -206,7 +207,7 @@ GET autocomplete_test_1/_search
 {
   "query": {
     "prefix": {
-      "word": {
+      "word.keyword": {
         "value": "추천"
       }
     }
@@ -215,8 +216,12 @@ GET autocomplete_test_1/_search
 
 ```
 
-![응 없어]()
+![search-prefix-keyword2](./images/search-prefix-keyword2.png)  
 추천과 관련된 word가 3개가 있는데 검색 결과는 <span class='red_font'>0건</span>이 나왔습니다  
+
+<br/>
+
+![elastic-search-index2](./images/elastic-search-index2.png)
 Type Type과 달리 들어오는 키워드 자체로 색인되기 때문에 추천이라는 글자가 포함되더라도 검색되지 않습니다  
 
 
@@ -240,7 +245,10 @@ GET autocomplete_test_1/_search
 }
 
 ```
-![]()
+![search-prefix-text3](./images/search-prefix-text3.png)  
+
+자동완성처럼 한글자씩 치면서 아래 계속해서 list를 펼쳐줘야 하는데  
+이는 치명적인 단점으로 다가오게 됩니다  
 
 <br/>
 
@@ -259,7 +267,7 @@ GET autocomplete_test_1/_search
 }
 
 ```
-![]()
+![search-prefix-keyword3](./images/search-prefix-keyword3.png)  
 
 이 때문에 높은 `recall(재현율)`을 위해서 두가지 타입을 `OR`로 사용해서 서비스 할 수도 있습니다  
 
