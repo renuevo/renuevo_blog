@@ -300,9 +300,11 @@ Fuzzy Query를 사용하게 되면 `편집거리 알고리즘`을 사용하여 �
 <br/>
 
 Fuzzy Query에 경우에도 아까 설명드린 `Text`와 `Keyword`에 대한 검색방식은 같습니다  
+
+**Text Type Fuzzy Query**  
 먼저 Text Type에 대해 검색을 하는 쿼리를 실행해 보겠습니다   
 
-<span class='code_header'>Fuzzy Query Text Type Search</span>
+<span class='code_header'>Fuzzy Query Text Type Search</span>  
 ```json
 
 ## 바꾸거나
@@ -368,3 +370,32 @@ GET autocomplete_test_1/_search
 <br/>
 
 이처럼 간단한 `Fuzzy Query`만으로 오타에 대한 자동완성을 대처할 수 있습니다  
+
+<br/>
+
+**Keyword Type Fuzzy Query**  
+Keyword Type은 Key가 전체의 문자으로 잡히기 때문에 Fuzzy Query로 긴 자동완성을 풀기엔 무리가 있습니다  
+
+<span class='code_header'>Fuzzy Query Keyword Type Search</span>  
+```json
+
+GET autocomplete_test_1/_search
+{
+  "query": {
+    "fuzzy": {
+      "word.keyword": {
+        "value": "스팀게임", /* highlight-line */  
+        "fuzziness": 1
+      }
+    }
+  }
+}
+
+```
+
+![search-fuzzy-keyword](./images/search-fuzzy-keyword.png)
+<span class='img_caption'>Fuzzy Keyword Search</span>  
+
+그래서 검색하면 다음과 같이 `스팀게임`만 결과로 나옵니다  
+`스팀게임 추천`과 `스팀게임`을 비교하면 빈공간과 추천이란 단어로 3개의 차이점이 보입니다  
+때문에 `fuzziness`의 1의 값과 맞지 않아 검색결과가 오로지 1건만 노출됩니다   
