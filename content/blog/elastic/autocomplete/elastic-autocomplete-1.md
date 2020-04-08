@@ -221,7 +221,7 @@ GET autocomplete_test_1/_search
 
 <br/>
 
-![elastic-search-index2](./images/elastic-search-index2.png)
+![elastic-search-index2](./images/elastic-search-index2.png)  
 Type Type과 달리 들어오는 키워드 자체로 색인되기 때문에 추천이라는 글자가 포함되더라도 검색되지 않습니다  
 
 
@@ -275,3 +275,12 @@ GET autocomplete_test_1/_search
 
 하지만 아직 위의 구현으로는 쓸만한 자동완성을 만들 수 있지만 잘 만든 자동완성은 아닙니다  
 다음으로 `오타교정 자동완성`과 `형태소 분석`을 통한 자동완성을 살펴 보겠습니다   
+
+<br/>
+
+---
+
+다음으로 알아볼것은 Elastic에서 제공하는 `Fuzzy Query`를 통한 자동완성입니다  
+Fuzzy Query를 사용하게 되면 `편집거리 알고리즘`을 사용하여 오타를 교정하는 검색이 가능해 집니다  
+`편집거리 알고리즘(Levenshtein distance)`에 대한 자세한 설명은 제 다른 포스팅을 확인해 주세요 :point_right: [편집거리 알고리즘]()   
+
