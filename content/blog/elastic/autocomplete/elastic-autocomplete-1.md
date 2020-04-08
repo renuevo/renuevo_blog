@@ -92,7 +92,8 @@ POST _bulk
 ```
 자동완성 데이터는 Google에 스팀게임을 검색해서 나오는 자동완성을 가져왔습니다  
 
-![google-search](./images/google-search.png)  
+![google-search](./images/google-search.png)
+<span class='img_caption'>Google Search</span>  
 
 <br/>
 
@@ -140,7 +141,8 @@ GET autocomplete_test_1/_search
 
 ```
 
-![search-prefix-text](./images/search-prefix-text.png)  
+![search-prefix-text](./images/search-prefix-text.png)
+<span class='img_caption'>Prefix Text Search</span>  
 정상적으로 모든 `스팀게임`의 키워드를 기준 앞글자가 일치하는 모든 결과가 검색된걸 확인할 수 있습니다  
 
 <br/>
@@ -162,12 +164,14 @@ GET autocomplete_test_1/_search
 ```
 
 
-![search-prefix-keyword](./images/search-prefix-keyword.png)  
+![search-prefix-keyword](./images/search-prefix-keyword.png)
+<span class='img_caption'>Prefix Keyword Search</span>    
 Text Type과 같이 모든 단어가 검색된걸 확인할 수 있습니다  
 
 둘의 검색을 비교해 보면 다음과 같습니다  
 
 ![elastic-search-index](./images/elastic-search-index.png)
+<span class='img_caption'>Elastic Index Search</span>  
 
 그래서 둘 모두 같은 결과를 내놓았습니다  
 만약 Text Type에 형태소에서 `스팀게임`이라는 단어를 `Index Key`로 잡지 않았다면 전혀 다른 결과가 나오게 됩니다  
@@ -191,10 +195,12 @@ GET autocomplete_test_1/_search
 
 ```
 
-![search-prefix-text2](./images/search-prefix-text2.png)  
+![search-prefix-text2](./images/search-prefix-text2.png)
+<span class='img_caption'>Prefix Text2 Search</span>  
 예상한것과 같이 추천이 뒤에 포함된 결과들이 검색된걸 확인할 수 있습니다  
 
-![naver-recommend](./images/naver-recommend.png)  
+![naver-recommend](./images/naver-recommend.png)
+<span class='img_caption'>Naver Autocomplete</span>  
 다음과 같이 뒤에 단어까지 확장된 검색이 필요하다면 Text Type의 색인된 검색결과를 입력하는게 효율적입니다  
 
 
@@ -216,12 +222,14 @@ GET autocomplete_test_1/_search
 
 ```
 
-![search-prefix-keyword2](./images/search-prefix-keyword2.png)  
+![search-prefix-keyword2](./images/search-prefix-keyword2.png)
+<span class='img_caption'>Prefix Keyword2 Search</span>    
 추천과 관련된 word가 3개가 있는데 검색 결과는 <span class='red_font'>0건</span>이 나왔습니다  
 
 <br/>
 
-![elastic-search-index2](./images/elastic-search-index2.png)  
+![elastic-search-index2](./images/elastic-search-index2.png)
+<span class='img_caption'>Elastic Index Search2</span>    
 Type Type과 달리 들어오는 키워드 자체로 색인되기 때문에 추천이라는 글자가 포함되더라도 검색되지 않습니다  
 
 
@@ -245,7 +253,8 @@ GET autocomplete_test_1/_search
 }
 
 ```
-![search-prefix-text3](./images/search-prefix-text3.png)  
+![search-prefix-text3](./images/search-prefix-text3.png)
+<span class='img_caption'>Prefix Text3 Search</span>    
 
 자동완성처럼 한글자씩 치면서 아래 계속해서 list를 펼쳐줘야 하는데  
 이는 치명적인 단점으로 다가오게 됩니다  
@@ -267,7 +276,8 @@ GET autocomplete_test_1/_search
 }
 
 ```
-![search-prefix-keyword3](./images/search-prefix-keyword3.png)  
+![search-prefix-keyword3](./images/search-prefix-keyword3.png)
+<span class='img_caption'>Prefix Keyword3 Search</span>    
 
 이 때문에 높은 `recall(재현율)`을 위해서 두가지 타입을 `OR`로 사용해서 서비스 할 수도 있습니다  
 
@@ -280,7 +290,81 @@ GET autocomplete_test_1/_search
 
 ---
 
+## Fuzzy Query  
+
 다음으로 알아볼것은 Elastic에서 제공하는 `Fuzzy Query`를 통한 자동완성입니다  
 Fuzzy Query를 사용하게 되면 `편집거리 알고리즘`을 사용하여 오타를 교정하는 검색이 가능해 집니다  
+간단히 설명드리면 `fuzziness`설정 값 이하로 `글자를 바꾸거나, 넣거나, 빼는 횟수`를 측정하여 검색합니다     
 `편집거리 알고리즘(Levenshtein distance)`에 대한 자세한 설명은 제 다른 포스팅을 확인해 주세요 :point_right: [편집거리 알고리즘]()   
 
+<br/>
+
+Fuzzy Query에 경우에도 아까 설명드린 `Text`와 `Keyword`에 대한 검색방식은 같습니다  
+먼저 Text Type에 대해 검색을 하는 쿼리를 실행해 보겠습니다   
+
+<span class='code_header'>Fuzzy Query Text Type Search</span>
+```json
+
+## 바꾸거나
+GET autocomplete_test_1/_search
+{
+  "query": {
+    "fuzzy": {
+      "word": {
+        "value": "스게팀임", /* highlight-line */  
+        "fuzziness": 1
+      }
+    }
+  }
+}
+GET autocomplete_test_1/_search
+{
+  "query": {
+    "fuzzy": {
+      "word": {
+        "value": "스팀께임", /* highlight-line */  
+        "fuzziness": 1
+      }
+    }
+  }
+}
+
+
+## 넣거나
+GET autocomplete_test_1/_search
+{
+  "query": {
+    "fuzzy": {
+      "word": {
+        "value": "스게임", /* highlight-line */  
+        "fuzziness": 1
+      }
+    }
+  }
+}
+
+## 빼거나
+GET autocomplete_test_1/_search
+{
+  "query": {
+    "fuzzy": {
+      "word": {
+        "value": "스!팀게임", /* highlight-line */  
+        "fuzziness": 1
+      }
+    }
+  }
+}
+
+```
+`fuzziness`를 `1`로 설정해서 1글자의 대해서 교정을 해주었습니다  
+그래서 `한글자를 바꾸거나, 넣거나, 빼는` 경우에 대해서 아래와 같이 모두 같은 결과가 나옵니다  
+
+<br/>
+
+![search-fuzzy-text](./images/search-fuzzy-text.png)
+<span class='img_caption'>Fuzzy Text Search</span>  
+
+<br/>
+
+이처럼 간단한 `Fuzzy Query`만으로 오타에 대한 자동완성을 대처할 수 있습니다  
