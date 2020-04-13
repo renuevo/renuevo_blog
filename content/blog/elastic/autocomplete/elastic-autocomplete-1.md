@@ -399,3 +399,72 @@ GET autocomplete_test_1/_search
 그래서 검색하면 다음과 같이 `스팀게임`만 결과로 나옵니다  
 `스팀게임 추천`과 `스팀게임`을 비교하면 빈공간과 추천이란 단어로 3개의 차이점이 보입니다  
 때문에 `fuzziness`의 1의 값과 맞지 않아 검색결과가 오로지 1건만 노출됩니다   
+
+<br/>
+
+---
+
+## Match Phrase Prefix  
+마지막으로 알아볼 것은 `Match Phrase Prefix`입니다  
+Match Phrase Prefix는 많은 자동완성에서 실제로 많이 사용되고 있습니다  
+기본적으로 Text Type에 검색을 하며 앞색인어와 뒷색인어 둘 모두 만족해야만 검색이 되는 형식입니다  
+말로 하면 어려우니 실제 예제를 통해 살펴 보겠습니다  
+
+```json
+
+GET autocomplete_test_1/_search
+{
+  "query": {
+    "match_phrase_prefix": {
+      "word": "스팀게임 추"
+    }
+  }
+}
+
+```
+
+![]()  
+
+보시는 것과 같이 이전 Prefix를 Keyword에 검색하는 것과 같은 결과가 나옵니다  
+**그럼 어떠한 경우에 다르게 나올까요?**    
+
+```json
+
+GET autocomplete_test_1/_search
+{
+  "query": {
+    "match_phrase_prefix": {
+      "word": "추천 20"
+    }
+  }
+}
+
+```
+
+![]()  
+
+이전과 다르게 2가지의 결과만 나왔습니다  
+`추천과 20`이라는 키워드를 차례대로 포함하고 있어서 입니다  
+일반적인 `like`검색과는 차이가 있습니다  
+색인키 `스팀게임`, `추천`, `2019`를 각각 가지고 있고 해당 색인키가 `차례대로 나올때에만` 검색이 됩니다  
+따라서 다음과 같은 검색에서는 결과가 나오지 않습니다  
+
+```json
+
+GET autocomplete_test_1/_search
+{
+  "query": {
+    "fuzzy": {
+      "word": {
+        "value": "20 추천",
+        "fuzziness": 1
+      }
+    }
+  }
+}
+
+```
+
+![]()  
+
+
