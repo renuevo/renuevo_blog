@@ -423,7 +423,7 @@ GET autocomplete_test_1/_search
 
 ```
 
-![]()  
+![match-phrase-prefix1](./images/match-phrase-prefix1.png)  
 
 보시는 것과 같이 이전 Prefix를 Keyword에 검색하는 것과 같은 결과가 나옵니다  
 **그럼 어떠한 경우에 다르게 나올까요?**    
@@ -441,7 +441,7 @@ GET autocomplete_test_1/_search
 
 ```
 
-![]()  
+![match-phrase-prefix2](./images/match-phrase-prefix2.png)  
 
 이전과 다르게 2가지의 결과만 나왔습니다  
 `추천과 20`이라는 키워드를 차례대로 포함하고 있어서 입니다  
@@ -465,6 +465,6 @@ GET autocomplete_test_1/_search
 
 ```
 
-![]()  
+![match-phrase-prefix3](./images/match-phrase-prefix3.png)  
 
 
