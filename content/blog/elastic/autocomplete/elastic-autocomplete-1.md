@@ -1,6 +1,6 @@
 ---
 title: "[Elastic] 1. Elastic 자동완성 가이드 (Autocomplete Guide) - Prefix Queries"
-date: 2020-04-06
+date: 2020-04-18
 category: 'Elastic'
 ---
 
