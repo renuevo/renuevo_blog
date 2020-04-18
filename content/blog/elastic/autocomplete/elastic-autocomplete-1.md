@@ -296,7 +296,7 @@ GET autocomplete_test_1/_search
 다음으로 알아볼것은 Elastic에서 제공하는 **Fuzzy Query**를 통한 자동완성입니다  
 Fuzzy Query를 사용하게 되면 `편집거리 알고리즘`을 사용하여 오타를 교정하는 검색이 가능해 집니다  
 간단히 설명드리면 **fuzziness**설정 값 이하로 **글자를 바꾸거나, 넣거나, 빼는 횟수**를 측정하여 검색합니다     
-**편집거리 알고리즘(Levenshtein distance)**에 대한 자세한 설명은 제 다른 포스팅을 확인해 주세요 :point_right: [편집거리 알고리즘]()   
+**편집거리 알고리즘(Levenshtein distance)**에 대한 자세한 설명은 제 다른 포스팅을 확인해 주세요 :point_right: [편집거리 알고리즘](https://github.com/renuevo/data-modeling-algorithm/tree/master/levenshtein-distance)   
 
 <br/>
 
