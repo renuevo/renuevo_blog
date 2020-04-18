@@ -289,13 +289,14 @@ GET autocomplete_test_1/_search
 <br/>
 
 ---
+<br/>
 
 ## Fuzzy Query  
 
-다음으로 알아볼것은 Elastic에서 제공하는 `Fuzzy Query`를 통한 자동완성입니다  
+다음으로 알아볼것은 Elastic에서 제공하는 **Fuzzy Query**를 통한 자동완성입니다  
 Fuzzy Query를 사용하게 되면 `편집거리 알고리즘`을 사용하여 오타를 교정하는 검색이 가능해 집니다  
-간단히 설명드리면 `fuzziness`설정 값 이하로 `글자를 바꾸거나, 넣거나, 빼는 횟수`를 측정하여 검색합니다     
-`편집거리 알고리즘(Levenshtein distance)`에 대한 자세한 설명은 제 다른 포스팅을 확인해 주세요 :point_right: [편집거리 알고리즘]()   
+간단히 설명드리면 **fuzziness**설정 값 이하로 **글자를 바꾸거나, 넣거나, 빼는 횟수**를 측정하여 검색합니다     
+**편집거리 알고리즘(Levenshtein distance)**에 대한 자세한 설명은 제 다른 포스팅을 확인해 주세요 :point_right: [편집거리 알고리즘]()   
 
 <br/>
 
@@ -359,8 +360,8 @@ GET autocomplete_test_1/_search
 }
 
 ```
-`fuzziness`를 `1`로 설정해서 1글자의 대해서 교정을 해주었습니다  
-그래서 `한글자를 바꾸거나, 넣거나, 빼는` 경우에 대해서 아래와 같이 모두 같은 결과가 나옵니다  
+`fuzziness`를 **1**로 설정해서 1글자의 대해서 교정을 해주었습니다  
+그래서 **한글자를 바꾸거나, 넣거나, 빼는** 경우에 대해서 아래와 같이 모두 같은 결과가 나옵니다  
 
 <br/>
 
@@ -426,6 +427,9 @@ GET autocomplete_test_1/_search
 ![match-phrase-prefix1](./images/match-phrase-prefix1.png)  
 
 보시는 것과 같이 이전 Prefix를 Keyword에 검색하는 것과 같은 결과가 나옵니다  
+
+<br/>
+
 **그럼 어떠한 경우에 다르게 나올까요?**    
 
 ```json
@@ -441,13 +445,16 @@ GET autocomplete_test_1/_search
 
 ```
 
-![match-phrase-prefix2](./images/match-phrase-prefix2.png)  
+![match-phrase-prefix2](./images/match-phrase-prefix2.png)
+<span class='img_caption'>Match Phrase Prefix</span>  
 
 이전과 다르게 2가지의 결과만 나왔습니다  
-`추천과 20`이라는 키워드를 차례대로 포함하고 있어서 입니다  
-일반적인 `like`검색과는 차이가 있습니다  
-색인키 `스팀게임`, `추천`, `2019`를 각각 가지고 있고 해당 색인키가 `차례대로 나올때에만` 검색이 됩니다  
-따라서 다음과 같은 검색에서는 결과가 나오지 않습니다  
+**추천과 20**이라는 키워드를 차례대로 포함하고 있어서 입니다  
+일반적인 <span class='red_font'>like</span>검색과는 차이가 있습니다  
+
+<br/>
+
+색인키 **스팀게임, 추천, 2019**를 각각 가지고 있고 해당 색인키가 `차례대로 나올때에만` 검색이 됩니다  
 
 ```json
 
@@ -465,6 +472,60 @@ GET autocomplete_test_1/_search
 
 ```
 
-![match-phrase-prefix3](./images/match-phrase-prefix3.png)  
+![match-phrase-prefix3](./images/match-phrase-prefix3.png)
+<span class='img_caption'>Match Phrase No Match</span>  
+따라서 다음과 같이 색인키의 순서가 다를 때에는 검색에서는 결과가 나오지 않습니다  
 
+<br/>
 
+---
+
+## Combine Query  
+마지막은 위에서 언급한 것들을 적절하게 섞어서 쓰는 방식입니다  
+Elastic에 bool 쿼리를 사용하여 쉽게 작성 가능합니다  
+예를 들어 아래 예제는 Fuzzy와 Prefix를 혼합하여 쓰는 방식입니다  
+
+```json
+
+GET autocomplete_test_1/_search
+{
+  "query": {
+    "bool": {
+      "should": [
+        {
+          "fuzzy": {
+            "word.keyword": {
+              "value": "스팀게임 불",
+              "fuzziness": 1
+            }
+          }
+        },
+        {
+          "prefix": {
+            "word.keyword": {
+              "value": "스팀게임 "
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+
+```
+![combine-1](./images/combine-1.png)
+<span class='img_caption'>Fuzzy와 Prefix의 혼합</span>  
+
+<br/>
+
+결과를 보시면 Should를 사용하여 Fuzzy와 Prefix 중 한가지라도 조건이 맞으면 결과로 노출됩니다  
+여기서 확인해야 할것은 `score`에 의한 `정렬`입니다  
+맨처음 **스팀게임 환불**만 Fuzzy와 Prefix를 모두 만족시켜서 높은 스코어로 맨 위에 노출되었습니다  
+
+<br/>
+ 
+실제로 Fuzzy쿼리만 검색해보시면 다음과 같은 score 확인이 가능합니다  
+
+![combine-2](./images/combine-2.png)  
+이걸로 이전 결과가 `prefix 1 + fuzzy 1.4로 2.4`로 스코어 집계가 된걸 확인할 수 있습니다  
+이처럼 여러 조건을 혼합한 설계로 좋은 품질의 자동완성을 만드는 것이 가능합니다  
