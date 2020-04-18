@@ -53,6 +53,7 @@ word에 2가지 속성으로 색인을 하였습니다
 
 1. `text` type은 형태소 분석를 통해서 색인 키를 가지게 됩니다  
     따로 설정이 없으면 Standard Analyzer로 색인되는데 기본적으로 `불용어, lowercase, whitespace`로 색인 됩니다  
+      **스팀게임 추천 :** `스팀게임` `추천`  두개의 단어로 키가 잡힙니다
     호출로 색인 키를 확인 할 수 있습니다  
     ```json
        GET autocomplete_test_1/_analyze
@@ -60,13 +61,18 @@ word에 2가지 속성으로 색인을 하였습니다
          "text" : "스팀게임 추천"
        }
     ```
-   ![analyzer-test](./images/analyzer-test.png)  
+   ![analyzer-test](./images/analyzer-test.png)
+   <span class='img_caption'>Standard Analyzer</span>  
+     
+     <br/>
     
 2. `keyword` type은 텍스트 자체를 키로 색인을 합니다  
-    **스팀게임 추천 :** `스팀게임 추천`
+    **스팀게임 추천 :** `스팀게임 추천`이라는 문장으로 키가 잡힙니다
     
 <br/>
+---
 
+이제 기본 개념을 알아봤으니 예제의 사용할 데이터를 생성하겠습니다  
 <span class="code_header">**Autocomplete Example Data**</span>  
 ```json
 
@@ -96,6 +102,7 @@ POST _bulk
 <span class='img_caption'>Google Search</span>  
 
 <br/>
+<br/>
 
 만약 7.X보다 밑의 버젼을 쓰신다면 type을 추가해주셔야합니다  
 ```json
@@ -107,8 +114,7 @@ POST _bulk
 ```
 
 <br/>
-
----
+<br/>
 
 ## Prefix Query  
 먼저 Prefix Query를 살펴보겠습니다  
@@ -146,6 +152,7 @@ GET autocomplete_test_1/_search
 정상적으로 모든 `스팀게임`의 키워드를 기준 앞글자가 일치하는 모든 결과가 검색된걸 확인할 수 있습니다  
 
 <br/>
+<br/>
 
 다음은 `Keyword Type`에대해 Prefix쿼리로 검색합니다  
 ```json 
@@ -177,6 +184,7 @@ Text Type과 같이 모든 단어가 검색된걸 확인할 수 있습니다
 만약 Text Type에 형태소에서 `스팀게임`이라는 단어를 `Index Key`로 잡지 않았다면 전혀 다른 결과가 나오게 됩니다  
 
 <br/>
+<br/>
 
 다음으로 `Text Type`에 `추천`으로 검색해 보겠습니다  
 
@@ -204,6 +212,7 @@ GET autocomplete_test_1/_search
 다음과 같이 뒤에 단어까지 확장된 검색이 필요하다면 Text Type의 색인된 검색결과를 입력하는게 효율적입니다  
 
 
+<br/>
 <br/>
 
 다음으로 `Keyword Type`에 `추천` 키워드로 검색해 보겠습니다  
@@ -234,8 +243,9 @@ Type Type과 달리 들어오는 키워드 자체로 색인되기 때문에 추�
 
 
 <br/>
+<br/>
 
-**그럼 무조건 Text Type의 검색일 사용하면 되는 걸까요?**
+**그럼 무조건 Text Type의 검색일 사용하면 되는 걸까요?**  
 Text Type으로 설정시 <span class='red_font'>치명적인 단점</span>을 가지고 있습니다  
 다음과 같이 각각의 키워드는 있으나 결합된 키워드로 검색시 결과가 나오지 않을 수 있습니다   
 
@@ -259,6 +269,7 @@ GET autocomplete_test_1/_search
 자동완성처럼 한글자씩 치면서 아래 계속해서 list를 펼쳐줘야 하는데  
 이는 치명적인 단점으로 다가오게 됩니다  
 
+<br/>
 <br/>
 
 반면 Keyword Type의 경우 색인된 결과와 앞글자를 일치 시켜주면 검색이 됩니다  
@@ -405,6 +416,8 @@ GET autocomplete_test_1/_search
 
 ---
 
+<br/>
+
 ## Match Phrase Prefix  
 마지막으로 알아볼 것은 `Match Phrase Prefix`입니다  
 Match Phrase Prefix는 많은 자동완성에서 실제로 많이 사용되고 있습니다  
@@ -479,6 +492,8 @@ GET autocomplete_test_1/_search
 <br/>
 
 ---
+
+<br/>
 
 ## Combine Query  
 마지막은 위에서 언급한 것들을 적절하게 섞어서 쓰는 방식입니다  
