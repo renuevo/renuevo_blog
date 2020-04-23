@@ -13,7 +13,7 @@ lang: 'ko'
 </figure>
 
 Deokhwa Kim  
-28 age  
+29 age  
 BackEnd Programer  
 SaraminHR Lab
 
