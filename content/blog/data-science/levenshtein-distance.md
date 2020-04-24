@@ -30,7 +30,9 @@ category: 'Data Science'
 
 **이 두개의 문장을 비교해 보겠습니다**  
 
-![levenshtein-ex](./images/levenshtein-ex.png)  
+<br/>
+
+![levenshtein-ex](./images/levenshtein-ex.png)
 <span class='img_caption'>Levenshtein Distance 비교</span>  
 
 <br/>  
@@ -40,7 +42,16 @@ category: 'Data Science'
 
 <br/>
 
-## Levenshtein Distance 구현하기 
-그럼 어떻게 이런 계산을 코드로 구현할까요?  
+## Levenshtein Distance 알고리즘 방식   
+그럼 이런 방법을 어떻게 알고리즘으로 구현할까요?  
 방법은 텍스트를 한글자씩 비교해가면서 행렬의 형태로 모든 경우의 수를 계산합니다  
+
+<br/>
+
+1. 행과 열로 각각의 비교군을 배치하고 숫자를 순서대로 입력해줍니다    
+
+<br/>
+
+![levenshtein-step1](./images/levenshtein-step1.png)
+<span class='img_caption'>Levenshtein Distance Step 1</span>  
 
