@@ -1,6 +1,6 @@
 ---
 title: "[DataScience] Levenshtein Distance (편집거리 알고리즘) - 문장 유사도 분석을 어떻게 하는가?"
-date: 2020-04-22
+date: 2020-04-27
 category: 'Data Science'
 ---  
 # Levenshtein Distance (편집거리 알고리즘)
@@ -83,3 +83,100 @@ category: 'Data Science'
 <span class='img_caption'>Levenshtein Distance Step 3</span>  
 
 <br/>
+<br/>
+<br/>
+
+## Levenshtein Distance 코드 구현하기 :point_right: [Code](https://github.com/renuevo/data-modeling-algorithm/tree/master/levenshtein-distance)   
+아래 모든 코드는 예제 출력코드는 github에 등록되어 있습니다  
+
+<br/>
+
+1. 연산을 위해 필요한 행의 수는 2개 임으로 List 2개를 생성해 주고 한줄을 초기화해 줍니다    
+```java
+    List<Integer> costList = Lists.newArrayList();
+    List<Integer> newCostList = Lists.newArrayList();
+
+    //행렬 첫줄 초기화
+    for (int i = 0; i <= s1.length(); i++) {
+        costList.add(i);
+    }
+```
+costList는 이전 행 / newCostList는 연산이 진행되는 행 입니다
+
+<br/>
+<br/>
+
+2. 행마다 for문을 돌면서 비용을 계산합니다  
+```java
+    for (int i = 1; i <= s2.length(); i++) {
+        newCostList.add(0, i);
+        for (int j = 1; j < costList.size(); j++) {
+
+            if (s1.charAt(j - 1) != s2.charAt(i - 1)) matchCost = 1;
+            else matchCost = 0;
+
+             /* highlight-range{1-4} */ 
+            // 대체, 삽입, 삭제의 비용을 계산한다
+            int replace = costList.get(j - 1) + matchCost;      //변경 비용
+            int insert = costList.get(j) + 1;                  //삽입 비용
+            int delete = newCostList.get(j - 1) + 1;           //삭제 비용
+
+            newCostList.add(j, Ints.min(replace, insert, delete));  //최소 비용 계산
+        }
+        Collections.copy(costList, newCostList);    //행렬 줄바꿈
+        newCostList.clear();
+    }
+```
+
+<br/>
+<br/>
+
+3. costList의 마지막 비용값이 최종 계산 비용이 됩니다
+```java
+ return costList.get(costList.size() - 1);
+```
+
+알고리즘 설명에 비해 생각보다 간단하게 구현됩니다  
+
+<br/>
+<br/>
+
+<span class='code_header'>**전체 코드**</span>
+```java
+public static int getDistance(String s1, String s2) {
+    List<Integer> costList = Lists.newArrayList();
+    List<Integer> newCostList = Lists.newArrayList();
+
+    //행렬 첫줄 초기화
+    for (int i = 0; i <= s1.length(); i++) {
+        costList.add(i);
+    }
+
+    int matchCost;
+    for (int i = 1; i <= s2.length(); i++) {
+        newCostList.add(0, i);
+        for (int j = 1; j < costList.size(); j++) {
+
+            if (s1.charAt(j - 1) != s2.charAt(i - 1)) matchCost = 1;
+            else matchCost = 0;
+
+            // 대체, 삽입, 삭제의 비용을 계산한다
+            int replace = costList.get(j - 1) + matchCost;      //변경 비용
+            int insert = costList.get(j) + 1;                  //삽입 비용
+            int delete = newCostList.get(j - 1) + 1;           //삭제 비용
+
+            newCostList.add(j, Ints.min(replace, insert, delete));  //최소 비용 계산
+        }
+
+        Collections.copy(costList, newCostList);    //행렬 줄바꿈
+        newCostList.clear();
+    }
+   return costList.get(costList.size() - 1);
+}
+```
+
+<br/>
+<br/>
+
+![levenshtein-run](./images/levenshtein-run.png)
+<span class='img_caption'>**결과 화면**</span>  
