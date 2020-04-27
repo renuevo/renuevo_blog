@@ -112,11 +112,13 @@ Spring Batch에서 제공하는 ItemReader는 2가지의 유형으로 나눠서 
 DB접근을 통한 데이터 Reader는 Chapter 3에서 설명드릴 예정입니다  
 Chapter 2에서는 File Reader에 대해서 살펴보도록 하겠습니다  
 
+<br/>
+
 ---
 
-### File Reader  
+<br/>
 
-**1. Txt 파일 ItemReader** :point_right: [Code](https://github.com/renuevo/spring-boot-in-action/blob/master/spring-boot-batch-in-action/src/main/java/com/github/renuevo/config/TxtFileItemReaderJobConfig.java)  
+### 1. Txt 파일 ItemReade :point_right: [Code](https://github.com/renuevo/spring-boot-in-action/blob/master/spring-boot-batch-in-action/src/main/java/com/github/renuevo/config/TxtFileItemReaderJobConfig.java)  
 txt 파일의 아이템 Reader는 **FlatFileItemReader**를 통해 Read 할 수 있습니다  
 
 ```java
@@ -152,7 +154,9 @@ LineMapper는 2가지의 파라미터를 받게 되는데 line은 한줄의 데�
 
 ---
 
-**2. Csv 파일 ItemReader**  :point_right: [Code](https://github.com/renuevo/spring-boot-in-action/blob/master/spring-boot-batch-in-action/src/main/java/com/github/renuevo/config/CsvFileItemReaderJobConfig.java)  
+<br/>
+
+### 2. Csv 파일 ItemReader  :point_right: [Code](https://github.com/renuevo/spring-boot-in-action/blob/master/spring-boot-batch-in-action/src/main/java/com/github/renuevo/config/CsvFileItemReaderJobConfig.java)  
 
 Csv파일도 txt파일을 읽어오는것과 별반 다르지 않습니다  
 FlatFileItemReader를 통해서 LineMapper만 수정해서 받아오면 됩니다  
@@ -290,7 +294,9 @@ public FlatFileItemReader<CsvItemVo> csvFileItemReader() {
 
 ---
 
-**3. XML 파일 ItemReader** :point_right: [Code](https://github.com/renuevo/spring-boot-in-action/blob/master/spring-boot-batch-in-action/src/main/java/com/github/renuevo/config/XmlFileItemReaderJobConfig.java)
+<br/>
+
+### 3. XML 파일 ItemReader** :point_right: [Code](https://github.com/renuevo/spring-boot-in-action/blob/master/spring-boot-batch-in-action/src/main/java/com/github/renuevo/config/XmlFileItemReaderJobConfig.java)
 
 XML은 앞서 설명드린 FlatFileItemReader와 달리 다른 Class를 사용합니다  
 여기서는 [Spring OXM](https://docs.spring.io/spring/docs/current/spring-framework-reference/data-access.html#oxm)을 통해 XML을 읽는 방법을 소개 합니다  
@@ -337,6 +343,8 @@ dependencies {
 Spring Boot의 따로 oxm은 없고 Spring 버젼에 맞는 oxm을 가져와서 추가해야 깔끔할겁니다  
 저는 Spring Boot 2.1.9를 사용하고 있고 해당 버젼의 spring-core는 5.1.10으로 oxm도 5.1.10으로 추가해 줬습니다  
 Spring Boot의 Spring 버젼 확인 방법은 아래와 같은 Compile Dependencies를 확인하시면 됩니다  
+
+<br/>
 
 ![Compile Dependencies](./images/spring-version.PNG)
 
@@ -433,7 +441,9 @@ public class JobSecurityConfig {
 
 ---
 
-**4. JSON 파일 ItemReader** :point_right: [Code](https://github.com/renuevo/spring-boot-in-action/blob/master/spring-boot-batch-in-action/src/main/java/com/github/renuevo/config/JsonFileItemReaderJobConfig.java)  
+<br/>
+
+### 4. JSON 파일 ItemReader :point_right: [Code](https://github.com/renuevo/spring-boot-in-action/blob/master/spring-boot-batch-in-action/src/main/java/com/github/renuevo/config/JsonFileItemReaderJobConfig.java)  
 이번엔 XML 형식보다 요즘 많이 사용되는 JSON형식을 읽는 ItemReader에 대해 알아 보겠습니다  
 Json형식은 XML처럼 복잡하지 않고 간단하게 Spring Batch에 있는 `JsonItemReaderBuilder`로 ItemReader를 생성 가능합니다  
 
@@ -506,7 +516,9 @@ ItemReader 설정은 다음과 같이 간단한 설정으로 JsonItem은 Read �
 
 ---
 
-**5. Multi 파일 ItemReader** :point_right: [Code](https://github.com/renuevo/spring-boot-in-action/blob/master/spring-boot-batch-in-action/src/main/java/com/github/renuevo/config/MultiFileItemReaderJobConfig.java)  
+<br/>
+
+### 5. Multi 파일 ItemReader :point_right: [Code](https://github.com/renuevo/spring-boot-in-action/blob/master/spring-boot-batch-in-action/src/main/java/com/github/renuevo/config/MultiFileItemReaderJobConfig.java)  
 File Item Reader의 마지막으로 여러 File을 읽는 방법을 소개 하겠습니다  
 여러 파일을 읽을 때는 Spring Batch에서 제공하는 `MultiResourceItemReader`를 사용하시면 됩니다  
 일단 sample txt 파일 2개를 준비합니다  

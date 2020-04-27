@@ -1,15 +1,10 @@
 ---
-title: "[Spring] 3. Spring Batch의 ItemReader - DB Item Reader"
-date: 2020-04-01
+title: "[Spring] 4. Spring Batch의 ItemWriter - File Item Writer"
+date: 2020-04-27
 category: 'Spring'
 ---
 
-*Chapter 3에서는 Spring Batch의 DB ItemReader에 대한 이야기를 다룹니다*  
-
-<br/>
-
-여기서는 ItemReader의 대한 개념을 알고 있다는 가정하에 설명합니다  
-만약 ItemReader에 대해 모르신다면 [2. Spring Batch의 ItemReader](https://renuevo.github.io/spring/batch/spring-batch-chapter-2/#itemreader)의 앞부분만 읽고 오시면 됩니다  
+*Chapter 4에서는 Spring Batch의 File ItemWriter에 대한 이야기를 다룹니다*  
 
 <br/>
 
