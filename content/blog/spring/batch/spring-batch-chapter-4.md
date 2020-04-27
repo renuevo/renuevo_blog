@@ -8,39 +8,156 @@ category: 'Spring'
 
 <br/>
 
-## Spring의 JDBC ItemReader  
+## Spring의 ItemWriter  
+File ItemWriter를 알기에 앞서 먼저 ItemWriter부터 살펴보겠습니다  
 
-Spring은 사용자 편의를 위하여 `JDBC의 기능을 확장`해서 `추상화 서비스`로 제공합니다  
-사용자는 이렇게 제공된 JDBC ItemReader 구현체로 간편하게 Item을 읽어올 수 있어 보다 서비스에 집중 할 수 있습니다  
+<br/>
 
-그럼 Item의 읽어오는 방식을 먼저 생각해 보겠습니다  
-앞서 [Chapter 1](https://renuevo.github.io/spring/batch/spring-batch-chapter-1/)에서 마지막에서 설명했듯 프로세스를 Spring Batch는 `Chuck 지향 처리`를 합니다  
+**Data -> ItemReader -> ItemProcessor -> ItemWriter -> Data**
 
-```textbox
-Spring Batch의 가장 큰 장점 중 하나는 `Chunk` 지향 처리입니다  
-`Chunk`지향처리란 한 번에 하나씩의 데이터를 읽어 Chunk라는 덩어리를 만든 뒤, Chunk 단위로 트랜잭션을 다루는 것을 의미합니다  
-그래서 트랜잭션을 수행시 `Chunk`단위로 수행하기 때문에 Chunk 만큼만 롤백 됩니다  
+<br/>
+
+여기서 `ItemWriter`는 앞서 처리되어진 데이터를 마지막에 처리하는 역할을 합니다  
+Spring Batch에서는 다양한 데이터를 처리할 수 있도록 기본적인 구현체를 제공하고 있습니다  
+또한  사용자 개인이 커스텀하여 다양한 형태의 데이터도 처리 할 수 있도록 확장성도 열어 두었습니다  
+
+<br/>
+
+### ItemWriter의 기본 구성
+먼저 가장 기본적인 SpringBatch의 ItemReader인 `JdbcBatchItemWriter` 살펴 보며 ItemWriter의 구조를 알아 보겠습니다  
+
+<br/>
+
+![JdbcBatchItemWriter UML](./images/JdbcBatchItemWriter.png)
+
+<span class='img_caption'>JdbcBatchItemWriter UML</span>
+
+<br/>
+
+JdbcBatchItemWriter는 `InitializingBean`과 `ItemWriter` 2개의 인터페이스를 구현하고 있습니다  
+
+  1. **InitializingBean**  
+     Bean을 처음 초기화시 필수 인자들을 확인하는 메소드 afterPropertiesSet()를 가지고 있다  
+     **ItemWriter를 구현후 afterPropertiesSet를 실행하여 필수 세팅값을 확인합니다**  
+     ```java
+     	/**
+     	 * Check mandatory properties - there must be a SimpleJdbcTemplate and an SQL statement plus a
+     	 * parameter source.
+     	 */
+     	@Override
+     	public void afterPropertiesSet() {
+     		Assert.notNull(namedParameterJdbcTemplate, "A DataSource or a NamedParameterJdbcTemplate is required.");
+     		Assert.notNull(sql, "An SQL statement is required.");
+     		List<String> namedParameters = new ArrayList<>();
+     		parameterCount = JdbcParameterUtils.countParameterPlaceholders(sql, namedParameters);
+     		if (namedParameters.size() > 0) {
+     			if (parameterCount != namedParameters.size()) {
+     				throw new InvalidDataAccessApiUsageException("You can't use both named parameters and classic \"?\" placeholders: " + sql);
+     			}
+     			usingNamedParameters = true;
+     		}
+     		if (!usingNamedParameters) {
+     			Assert.notNull(itemPreparedStatementSetter, "Using SQL statement with '?' placeholders requires an ItemPreparedStatementSetter");
+     		}
+     	}
+     ```
+     
+     <br/>
+  2. **ItemWriter**
+     실제 Writer 기능의 메소드를 가지고 있습니다  
+     때문에 간편하게 ItemWriter의 write를 구현하여 Batch의 Writer기능을 커스텀 할 수 있습니다  
+     
+     ```java
+      public interface ItemWriter<T> {
+        /**
+         * Process the supplied data element. Will not be called with any null items
+         * in normal operation.
+         *
+         * @param items items to be written
+         * @throws Exception if there are errors. The framework will catch the
+         * exception and convert or rethrow it as appropriate.
+         */
+        void write(List<? extends T> items) throws Exception;
+      }
+     ```
+     <br/>
+
+<br/>
+
+![JdbcPaingItemReader UML_2](./images/JdbcPagingItemReader-2.png)   
+
+
+먼저 2개의 인터페이스중 ItemReader를 먼저 살펴 보겠습니다  
+
+<br/>
+
+**1. ItemReader는 Step에서 요구하는 필수적인 인터페이스입니다**  
+```java
+
+public interface ItemReader<T> {
+    T read() throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException;
+} 
+
 ```
-    
-이러한 구조상 순차적으로 Item을 일정 사이즈 만큼 받아와서 처리해야 할 것입니다  
-하지만 <span class='red_font'> Spring의 JdbcTemplate은 자체적으로 분할처리를 지원하지 않습니다</span>   
-때문에 `limit`와 `offset`을 사용자가 직접지정하여 사용하는 작업이 필요합니다  
+내부도 간단하게 Step에서 사용할 데이터를 가져오는 Read에 대한 역할에 충실하고 있습니다  
+Step은 이런 ItemReader를 받아와서 데이터 Reader 업무를 수행합니다  
+
+```java
+
+public SimpleStepBuilder<I, O> reader(ItemReader<? extends I> reader) {
+    this.reader = reader;
+    return this;
+}   
+
+```
+사용자 지정 Reader를  ItemReader를 구현할때 상속받아 read() 부분을 구현하시면 됩니다  
 
 <br/>
 
-Spring Batch는 이러한 구현을 사용자가 직접하지 않고 사용할 수 있도록 자체적으로 서비스를 `2가지 방식`으로 제공합니다
+**2. 다음은 ItemStream 입니다**  
+구성은 다음과 같이 3가지의 메소드를 가지고 있습니다  
 
-1. Cursor-based ItemReader  
-2. Paging ItemReader  
+```java
+
+public interface ItemStream {
+
+	void open(ExecutionContext executionContext) throws ItemStreamException;
+
+	void update(ExecutionContext executionContext) throws ItemStreamException;
+
+	void close() throws ItemStreamException;
+}
+
+```
+
+**ItemStream은 주기적으로 상태를 업데이트하고 오류가 발생하면 복원상태를 확인 가능하게 합니다**  
+open과 close는 Stream에 열고 닫음을 설정합니다  
+update는 상태를 주기적으로 업데이트 하는 역할을 담당합니다  
 
 <br/>
 
-![DB_ItemReader](./images/db-itemreader.png)
-
-2가지 방식은 같은 데이터를 읽어 오지만 서로 다른 전략으로 DB의 데이터를 읽어 옵니다  
-프로세스 동작에 따라 알맞은 전략을 선택해야 하며 전략선택에 따라 Batch의 퍼포먼스를 높일 수 있습니다  
+기본 구성은 다음과 같고 다음으로 Spring Batch에서 제공하는 기본적인 ItemReader들과 커스텀 구현을 알아 보도록 하겠습니다  
 
 <br/>
+
+---
+
+## Spring Batch의 ItemReader  
+
+Spring Batch에서 제공하는 ItemReader는 2가지의 유형으로 나눠서 설명드리겠습니다  
+
+**1. File 형식의 데이터 Reader (txt, csv, xml, json)**  
+**2. DB접근을 통한 데이터 Reader**  
+
+DB접근을 통한 데이터 Reader는 Chapter 3에서 설명드릴 예정입니다  
+Chapter 2에서는 File Reader에 대해서 살펴보도록 하겠습니다  
+
+<br/>
+
+---
+
+<br/>
+
 
 
 ## Sample DB Setting  
@@ -594,8 +711,4 @@ Reader의 `Size`지정과 `QueryProvider`로 Query를 정의합니다
 ---
 
 ## 관련 참고  
-[RepositoryItemReader](https://stackoverflow.com/questions/43003266/spring-batch-with-spring-data/43986718#43986718)  
-[Spring Batch Docs](https://docs.spring.io/spring-batch/docs/current/reference/html/readersAndWriters.html#database)   
-[Cursor-based ItemReader Thread Safe](https://stackoverflow.com/questions/28719836/spring-batch-problems-mix-data-when-converting-to-multithread)  
-[spring-jdbc-tips](https://github.com/benelog/spring-jdbc-tips/blob/master/spring-jdbc-core.md#beanpropertyrowmapper)  
-[기억보단 기록을](https://jojoldu.tistory.com/336)  
+[Spring Batch Docs](https://docs.spring.io/spring-batch/docs/current/reference/html/readersAndWriters.html#flatFiles)   

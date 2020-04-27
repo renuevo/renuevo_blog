@@ -16,7 +16,7 @@ category: 'Spring'
 
 지금부터 이 3가지 요소의 대해 알아보도록 하겠습니다  
 
-## ItemReader  
+## Spring의 ItemReader  
 
 기본적으로 Spring Batch는 다음과 같은 흐름으로 많이 사용합니다  
 
