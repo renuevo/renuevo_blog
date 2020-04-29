@@ -33,7 +33,6 @@ PUT autocomplete_test_1
     }
   },
    "mappings": {
-    "_doc": {
       "properties": {
         "word": {
           "type": "text",
@@ -43,7 +42,6 @@ PUT autocomplete_test_1
             }
           }
         }
-      }
     }
   }
 }
