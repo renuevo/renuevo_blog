@@ -15,7 +15,7 @@ lang: 'ko'
 Deokhwa Kim  
 29 age  
 BackEnd Programer  
-SaraminHR Lab
+Kakaopay Corp
 
 </div>
 
