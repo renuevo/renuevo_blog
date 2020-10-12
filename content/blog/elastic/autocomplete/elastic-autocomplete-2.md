@@ -11,7 +11,8 @@ category: 'Elastic'
 2. Index 색인을 통한 Search  
 3. Completion Suggester를 활용한 자동완성  
 
-해당 포스팅에서는 `Prefix Queries`를 활용한 가장 단순한 자동완성을 만드는 방법 소개합니다  
+해당 포스팅에서는 앞서 소개한 [Prefix Queries](https://renuevo.github.io/elastic/autocomplete/elastic-autocomplete-1/)에서는 다룰수 없었던  
+초성검색과 같은 보다 복잡한 자동완성을 해결할 수 있는 `Index Search`를 활용한 자동완성을 만드는 방법 소개합니다  
 
 <br/>
 
