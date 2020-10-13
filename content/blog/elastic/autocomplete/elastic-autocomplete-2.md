@@ -70,7 +70,7 @@ PUT autocomplete_test_2
 <br/>
 
 [Elastic에서 기본적으로 제공하는 Tokenizer reference](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-tokenizers.html)  
-토큰을 끊는 기준을 Elastic에서 제공하는 edge_ngram으로 작성했습니다  
+토큰을 끊는 기준을 Elastic에서 제공하는 edge\_ngram으로 작성했습니다  
 `edge_ngram`은 자동완성과 아주 잘 맞는 Tokenizer 입니다  
 
 <br/>
@@ -91,16 +91,37 @@ PUT autocomplete_test_2
   }
 
 ```
-edge_ngram는 기본적으로 min_gram과 max_gram을 지정하게 되어있습니다  
+edge\_ngram는 기본적으로 min\_gram과 max\_gram을 지정하게 되어있습니다  
 글자수를 지정하는 단위로 위와 같이 설정할 경우 "2 Quick Foxes"를 `[ Qu, Qui, Quic, Quick, Fo, Fox, Foxe, Foxes ]` 다음과 같이 끊어 줍니다  
-token_chars는 글자수에 포함될 형태의 단위로 위에는 문자와 숫자를 추가 하였습니다  
-자세한 설명은 [Elastic 공식 가이드](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-edgengram-tokenizer.html)에 나와있습니다!!  
+그래서 실제 검색하는 글자 타이핑에 맞게 알맞은 색인어들이 생성됩니다  
 
 <br/>
 
+token\_chars는 글자수에 포함될 형태의 단위로 위에는 문자와 숫자를 추가 하였습니다  
+문자와 숫자를 제외한 다른 것들(공백, 줄바꿈등)은 새롭게 토큰을 시작하는 기준이 됩니다  
+
+<br/>
+
+자세한 설명은 [Elastic 공식 가이드](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-edgengram-tokenizer.html)에서 확인할 수 있습니다!!  
+
+<br/>
+
+
 ---
 
-이제 기본 개념을 index 설정을 알아봤으니 예제의 사용할 데이터를 생성하겠습니다  
+<br/>
+
+이제 기본 index 설정 개념을 알아봤으니 예제의 사용할 데이터를 생성하겠습니다  
+
+<br/>
+
+![coupang_autocomplete](./images/coupang_autocomplete.png)
+<span class='img_caption'>Coupang Search</span>  
+
+자동완성 샘플 데이터는 쿠팡에 **세트**를 검색해서 나오는 자동완성을 가져왔습니다  
+
+<br/>
+
 <span class="code_header">**Autocomplete Example Data**</span>  
 ```json
 
@@ -124,10 +145,6 @@ POST _bulk
 
 
 ```
-자동완성 데이터는 쿠팡에 세트를 검색해서 나오는 자동완성을 가져왔습니다  
-
-![coupang_autocomplete](./images/coupang_autocomplete.png)
-<span class='img_caption'>Coupang Search</span>  
 
 <br/>
 
