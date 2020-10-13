@@ -25,92 +25,110 @@ category: 'Elastic'
 <span class="code_header">**Autocomplete Example Mapping**</span>  
 ```json
 
-PUT autocomplete_test_1
+PUT autocomplete_test_2
 {
   "settings": {
-    "index": {
-      "number_of_shards": 1,
-      "number_of_replicas": 1
+    "analysis": {
+      "analyzer": {
+        "autocomplete": {
+          "tokenizer": "autocomplete",
+          "filter": [
+            "lowercase"
+          ]
+        },
+        "autocomplete_search": {
+          "tokenizer": "lowercase"
+        }
+      },
+      "tokenizer": {
+        "autocomplete": {
+          "type": "edge_ngram",
+          "min_gram": 2,
+          "max_gram": 20,
+          "token_chars": [
+            "letter",
+            "digit"
+          ]
+        }
+      }
     }
   },
-   "mappings": {
-      "properties": {
-        "word": {
-          "type": "text",
-          "fields": {
-            "keyword": {
-              "type": "keyword"
-            }
-          }
-        }
+  "mappings": {
+    "properties": {
+      "word": {
+        "type": "text",
+        "analyzer": "autocomplete",
+        "search_analyzer": "autocomplete_search"
+      }
     }
   }
 }
 
 ```
-word에 2가지 속성으로 색인을 하였습니다  
+색인을 활용한 자동완성을 위해 커스텀한 형태소 분석을 추가해 줍니다  
 
-1. `text` type은 형태소 분석를 통해서 색인 키를 가지게 됩니다  
-    따로 설정이 없으면 Standard Analyzer로 색인되는데 기본적으로 `불용어, lowercase, whitespace`로 색인 됩니다  
-      **스팀게임 추천 :** `스팀게임` `추천`  두개의 단어로 키가 잡힙니다
-    호출로 색인 키를 확인 할 수 있습니다  
-    ```json
-       GET autocomplete_test_1/_analyze
-       {
-         "text" : "스팀게임 추천"
-       }
-    ```
-   ![analyzer-test](./images/analyzer-test.png)
-   <span class='img_caption'>Standard Analyzer</span>  
-     
-     <br/>
-    
-2. `keyword` type은 텍스트 자체를 키로 색인을 합니다  
-    **스팀게임 추천 :** `스팀게임 추천`이라는 문장으로 키가 잡힙니다
-    
 <br/>
+
+[Elastic에서 기본적으로 제공하는 Tokenizer reference](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-tokenizers.html)  
+토큰을 끊는 기준을 Elastic에서 제공하는 edge_ngram으로 작성했습니다  
+`edge_ngram`은 자동완성과 아주 잘 맞는 Tokenizer 입니다  
+
+<br/>
+
+<span class="code_header">**Edge_ngram Tokenizer**</span>  
+```json
+
+  "tokenizer": {
+    "autocomplete": {
+      "type": "edge_ngram",
+      "min_gram": 2,
+      "max_gram": 20,
+      "token_chars": [
+        "letter",
+        "digit"
+      ]
+    }
+  }
+
+```
+edge_ngram는 기본적으로 min_gram과 max_gram을 지정하게 되어있습니다  
+글자수를 지정하는 단위로 위와 같이 설정할 경우 "2 Quick Foxes"를 `[ Qu, Qui, Quic, Quick, Fo, Fox, Foxe, Foxes ]` 다음과 같이 끊어 줍니다  
+token_chars는 글자수에 포함될 형태의 단위로 위에는 문자와 숫자를 추가 하였습니다  
+자세한 설명은 [Elastic 공식 가이드](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-edgengram-tokenizer.html)에 나와있습니다!!  
+
+<br/>
+
 ---
 
-이제 기본 개념을 알아봤으니 예제의 사용할 데이터를 생성하겠습니다  
+이제 기본 개념을 index 설정을 알아봤으니 예제의 사용할 데이터를 생성하겠습니다  
 <span class="code_header">**Autocomplete Example Data**</span>  
 ```json
 
 POST _bulk
-{"index":{"_index":"autocomplete_test_1","_id":"1"}}
-{"word":"스팀게임"}
-{"index":{"_index":"autocomplete_test_1","_id":"2"}}
-{"word":"스팀게임 추천"}
-{"index":{"_index":"autocomplete_test_1","_id":"3"}}
-{"word":"스팀게임 추천 2019"}
-{"index":{"_index":"autocomplete_test_1","_id":"4"}}
-{"word":"스팀게임 환불"}
-{"index":{"_index":"autocomplete_test_1","_id":"5"}}
-{"word":"스팀게임 싸게"}
-{"index":{"_index":"autocomplete_test_1","_id":"6"}}
-{"word":"스팀게임 순위"}
-{"index":{"_index":"autocomplete_test_1","_id":"7"}}
-{"word":"스팀게임 추천 2020"}
-{"index":{"_index":"autocomplete_test_1","_id":"8"}}
-{"word":"스팀게임 환불하는법"}
+{"index":{"_index":"autocomplete_test_2","_id":"1"}}
+{"word":"추석 선물 세트"}
+{"index":{"_index":"autocomplete_test_2","_id":"2"}}
+{"word":"여성 트레이닝복 세트"}
+{"index":{"_index":"autocomplete_test_2","_id":"3"}}
+{"word":"김밥 재료 세트"}
+{"index":{"_index":"autocomplete_test_2","_id":"4"}}
+{"word":"여성 속옷 세트"}
+{"index":{"_index":"autocomplete_test_2","_id":"5"}}
+{"word":"선물 세트"}
+{"index":{"_index":"autocomplete_test_2","_id":"6"}}
+{"word":"설화수 세트"}
+{"index":{"_index":"autocomplete_test_2","_id":"7"}}
+{"word":"달고나 만들기 세트"}
+{"index":{"_index":"autocomplete_test_2","_id":"8"}}
+{"word":"무선 키보드마우스 세트"}
 
 
 ```
-자동완성 데이터는 Google에 스팀게임을 검색해서 나오는 자동완성을 가져왔습니다  
+자동완성 데이터는 쿠팡에 세트를 검색해서 나오는 자동완성을 가져왔습니다  
 
-![google-search](./images/google-search.png)
-<span class='img_caption'>Google Search</span>  
-
-<br/>
-<br/>
-
-만약 7.X보다 밑의 버젼을 쓰신다면 type을 추가해주셔야합니다  
-```json
-
-POST _bulk
-{"index":{"_index":"autocomplete_test_1","_type" : "_doc", "_id":"1"}}
-{"word":"스팀게임"}
-
-```
+![coupang_autocomplete](./images/coupang_autocomplete.png)
+<span class='img_caption'>Coupang Search</span>  
 
 <br/>
+
 <br/>
