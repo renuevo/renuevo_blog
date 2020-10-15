@@ -4,6 +4,18 @@ date: 2020-01-30
 category: 'Spring'
 ---
 
+### Spring Batch Guide 시리즈
+
+1. [Spring Batch의 기본 개념](https://renuevo.github.io/spring/batch/spring-batch-chapter-1/)
+2. [Spring Batch의 ItemReader - File Item Reader](https://renuevo.github.io/spring/batch/spring-batch-chapter-2/)
+3. [Spring Batch의 ItemReader - DB Item Reader](https://renuevo.github.io/spring/batch/spring-batch-chapter-3/)
+
+<br/>
+
+---
+
+<br/>
+
 *Chapter 1에서는 Spring Batch의 구조와 동작 방식의 대한 이야기를 다룹니다*  
 
 <br/>
