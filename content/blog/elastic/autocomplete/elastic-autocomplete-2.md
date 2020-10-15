@@ -143,9 +143,92 @@ POST _bulk
 {"index":{"_index":"autocomplete_test_2","_id":"8"}}
 {"word":"무선 키보드마우스 세트"}
 
+```
+이걸로 기본 데이터 설정은 끝났습니다  
+
+<br/> 
+<br/>
+
+## Search를 통한 검색  
+이게 샘플 데이터를 가지고 검색을 해보겠습니다  
+먼저 이해를 돕기 위해 Index에 설정된 analyze로 샘플 데이터가 어떻게 색인되는지 살펴보겠습니다  
+다음 쿼리로 샘플데이터의 색인 토큰을 확인 하실 수 있습니다  
+
+```json
+
+GET autocomplete_test_2/_analyze
+{
+  "analyzer": "autocomplete",
+  "text" : "여성 트레이닝복 세트"
+}
+
+```
+![Analyze Token](./images/analyze-token.png)  
+<span class='img_caption'>Edge_Ngram 색인 토큰</span>   
+색인어를 보면 2글자 이상을 기준으로 공백으로 끊어서 색인어가 생성된 것을 확인 하실 수 있습니다  
+이것을 토대로 생성된 자동완성을 일반 검색과 같이 `match`를 써서 자동완성을 서비스 합니다  
+
+```json
+
+GET autocomplete_test_2/_search
+{
+  "query": {
+    "match": {
+      "word": "세트"
+    }
+  }
+}
+
+```
+![Match Search](./images/match-search.png)  
+<span class='img_caption'>Match 검색 결과</span>   
+
+<br/> 
+
+오타에 대한 검색을 위해 `fuzziness`를 설정하여 검색도 가능합니다  
+```json
+
+GET autocomplete_test_2/_search
+{
+  "query": {
+    "match": {
+      "word": {
+        "query": "트레이복",
+        "fuzziness": 2
+      }
+    }
+  }
+}
 
 ```
 
+![Match Fuzziness Search](./images/match-fuzziness-search.png)  
+<span class='img_caption'>Fuzziness 설정 검색 결과</span>   
+
+이것으로 이전에 해결하지 못한 `Prefix`와 `Whitespace`를 기준으로 모든 문자를 입력해야 하는 단점을 보완하였습니다  
+이러한 방식으로 **세트**와 같이 중간이나 끝에 나오는 문자도 자동완성으로 제공하는 서비스가 가능합니다   
+
 <br/>
+
+하지만 이러한 자동완성도 어디까지나 영어와 같은 a, b, c 같이 문자가 하나하나일 경우만 효과적일 수 있습니다 :exclamation:  
+한글의 경우는 해당 방법만으로 서비스를 하기엔 부족한 부분이 있습니다  
+다음은 한글 자동완성의 다른점과 어떻게 서비스를 만들어야 하는지를 설명합니다  
+
+<br/>
+
+## 한글의 자동완성  
+한글은 `자음과 모음`의 합성으로 글자가 이루어 집니다  
+이러한 경우 사람이 이해하기 쉽지만 시스템에서는 이를 서비스하기 위해 약간의 개발이 필요합니다  
+
+<br/>
+
+먼저 한글로 인해 고려해야할 항목들을 생각해 보겠습니다  
+> 1. `ㄱ`과 `ㅏ`가 만나 `가`가 되는 합성문자 이다  
+> 2. `받침`을 가지고 있어 `자음이 이전문자`의 `받침`이 될 수 있다  
+>> :potato:`감자튀김`을 입력할 경우 `감잩`같이 중간에 전혀 다른 글자가 된다   
+> 3. 서비스적으로 :potato:`감자튀김`을 `ㄱㅈㅌㄱ`과 같이 검색 할 수 도 있다  
+
+한글 자동완성을 설계할 때는 다음과 같은 상황을 고려해서 설계할 필요가 있습니다  
+
 
 <br/>
