@@ -4,6 +4,19 @@ date: 2020-04-18
 category: 'Elastic'
 ---
 
+
+### Elastic Autocomplete Guide 시리즈
+
+1. [Autocomplete Prefix Queries](https://renuevo.github.io/elastic/autocomplete/elastic-autocomplete-1/)
+2. [Autocomplete Index Search](https://renuevo.github.io/elastic/autocomplete/elastic-autocomplete-2/)
+
+<br/>
+
+---
+
+<br/>
+
+
 *Elastic을 활용하여 다음 3가지 방법의 자동완성 서비스를 구현하는 기술을 다룹니다*   
 *Elastic 7.x 버젼을 기준으로 진행합니다*   
 
