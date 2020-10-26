@@ -1,6 +1,6 @@
 ---
 title: "[Elastic] 2. Elastic 자동완성 가이드 (Autocomplete Guide) - Index Search"
-date: 2020-10-12
+date: 2020-10-24
 category: 'Elastic'
 ---
 
@@ -156,6 +156,7 @@ POST _bulk
 
 ```
 이걸로 기본 데이터 설정은 끝났습니다  
+다음은 검색을 통해 어떠한 결과를 가지고 오는지 살펴 보겠습니다  
 
 <br/> 
 <br/>
@@ -195,6 +196,7 @@ GET autocomplete_test_2/_search
 <span class='img_caption'>Match 검색 결과</span>   
 
 <br/> 
+<br/>
 
 오타에 대한 검색을 위해 `fuzziness`를 설정하여 검색도 가능합니다  
 ```json
@@ -216,20 +218,20 @@ GET autocomplete_test_2/_search
 ![Match Fuzziness Search](./images/match-fuzziness-search.png)  
 <span class='img_caption'>Fuzziness 설정 검색 결과</span>   
 
-이것으로 이전에 해결하지 못한 `Prefix`와 `Whitespace`를 기준으로 모든 문자를 입력해야 하는 단점을 보완하였습니다  
+이것으로 이전에 [Autocomplete Prefix Queries](https://renuevo.github.io/elastic/autocomplete/elastic-autocomplete-1/)에서 첫글자를 기준으로 입력해야 했던 `Prefix`와 `Whitespace`의 단점을 보완하였습니다  
 이러한 방식으로 **세트**와 같이 중간이나 끝에 나오는 문자도 자동완성으로 제공하는 서비스가 가능합니다   
 
 <br/>
 
 하지만 이러한 자동완성도 어디까지나 영어와 같은 a, b, c 같이 문자가 하나하나일 경우만 효과적일 수 있습니다 :exclamation:  
-한글의 경우는 해당 방법만으로 서비스를 하기엔 부족한 부분이 있습니다  
+다시 말해 한글과 같이 자음과 모음의 합성으로 만들어지는 문자의 경우는 해당 방법만으로 서비스를 하기엔 부족한 부분이 있습니다  
 다음은 한글 자동완성의 다른점과 어떻게 서비스를 만들어야 하는지를 설명합니다  
 
 <br/>
 
 ## 한글의 자동완성  
 한글은 `자음과 모음`의 합성으로 글자가 이루어 집니다  
-이러한 경우 사람이 이해하기 쉽지만 시스템에서는 이를 서비스하기 위해 약간의 개발이 필요합니다  
+이러한 경우 사람이 이해하기 쉽지만 시스템에서는 이를 서비스하기 위해 약간의 추가적 개발이 필요합니다  
 
 <br/>
 
@@ -241,5 +243,8 @@ GET autocomplete_test_2/_search
 
 한글 자동완성을 설계할 때는 다음과 같은 상황을 고려해서 설계할 필요가 있습니다  
 
-
 <br/>
+
+[한글 jamo 7.3.2 버젼](https://github.com/renuevo/elastic-plugin-test)  
+
+[한글 jamo 플러그인](https://github.com/punxism/elasticsearch-hangul-jamo-plugin)  
