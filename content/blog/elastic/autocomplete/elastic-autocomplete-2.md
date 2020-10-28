@@ -242,9 +242,13 @@ GET autocomplete_test_2/_search
 > 3. 서비스적으로 :potato:`감자튀김`을 `ㄱㅈㅌㄱ`과 같이 검색 할 수 도 있다  
 
 한글 자동완성을 설계할 때는 다음과 같은 상황을 고려해서 설계할 필요가 있습니다  
+이러한 기능들을 구현하기 위해서는 색인어를 다양한 형태로 저장해야만 합니다  
+하지만 현재의 Elastic Search가 현재 제공하는 기본 기능만으로는 한계가 있습니다   
 
 <br/>
 
-[한글 jamo 7.3.2 버젼](https://github.com/renuevo/elastic-plugin-test)  
 
+
+
+[한글 jamo 7.3.2 버젼](https://github.com/renuevo/elastic-plugin-test)  
 [한글 jamo 플러그인](https://github.com/punxism/elasticsearch-hangul-jamo-plugin)  
