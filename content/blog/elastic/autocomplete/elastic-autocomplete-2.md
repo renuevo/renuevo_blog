@@ -175,8 +175,11 @@ GET autocomplete_test_2/_analyze
 }
 
 ```
-![Analyze Token](./images/analyze-token.png)  
+![Analyze Token](./images/analyze-token.png)
 <span class='img_caption'>Edge_Ngram 색인 토큰</span>   
+
+<br/>
+
 색인어를 보면 2글자 이상을 기준으로 공백으로 끊어서 색인어가 생성된 것을 확인 하실 수 있습니다  
 이것을 토대로 생성된 자동완성을 일반 검색과 같이 `match`를 써서 자동완성을 서비스 합니다  
 
@@ -192,7 +195,7 @@ GET autocomplete_test_2/_search
 }
 
 ```
-![Match Search](./images/match-search.png)  
+![Match Search](./images/match-search.png)
 <span class='img_caption'>Match 검색 결과</span>   
 
 <br/> 
@@ -215,8 +218,10 @@ GET autocomplete_test_2/_search
 
 ```
 
-![Match Fuzziness Search](./images/match-fuzziness-search.png)  
+![Match Fuzziness Search](./images/match-fuzziness-search.png)
 <span class='img_caption'>Fuzziness 설정 검색 결과</span>   
+
+<br/>
 
 이것으로 이전에 [Autocomplete Prefix Queries](https://renuevo.github.io/elastic/autocomplete/elastic-autocomplete-1/)에서 첫글자를 기준으로 입력해야 했던 `Prefix`와 `Whitespace`의 단점을 보완하였습니다  
 이러한 방식으로 **세트**와 같이 중간이나 끝에 나오는 문자도 자동완성으로 제공하는 서비스가 가능합니다   
@@ -227,6 +232,7 @@ GET autocomplete_test_2/_search
 다시 말해 한글과 같이 자음과 모음의 합성으로 만들어지는 문자의 경우는 해당 방법만으로 서비스를 하기엔 부족한 부분이 있습니다  
 다음은 한글 자동완성의 다른점과 어떻게 서비스를 만들어야 하는지를 설명합니다  
 
+<br/>
 <br/>
 
 ## 한글의 자동완성  
@@ -241,14 +247,48 @@ GET autocomplete_test_2/_search
 >> :potato:`감자튀김`을 입력할 경우 `감잩`같이 중간에 전혀 다른 글자가 된다   
 > 3. 서비스적으로 :potato:`감자튀김`을 `ㄱㅈㅌㄱ`과 같이 검색 할 수 도 있다  
 
+<br/>
+
 한글 자동완성을 설계할 때는 다음과 같은 상황을 고려해서 설계할 필요가 있습니다  
 이러한 기능들을 구현하기 위해서는 색인어를 다양한 형태로 저장해야만 합니다  
-하지만 현재의 Elastic Search가 현재 제공하는 기본 기능만으로는 한계가 있습니다   
+하지만 현재의 Elastic Search가 제공하는 기본 기능만으로는 한계가 있습니다   
+그래서 추가적으로 Plugin을 설치하여 Elastic의 기능을 확장할 필요성이 있습니다  
+
+<br/>
+세키로
+
 
 <br/>
 
+## 한글 자동완성을 위한 플러그인  
+자동완성의 경우에는 일반적인 검색에 대한 인덱싱과는 색인어의 차이를 가지고 있습니다  
+일반적인 검색에서는 `nori형태소`와 같이 검색을 위해 단어에 대해서 색인을 하게 됩니다  
 
+<br/>
 
+![nori-analyzer](./images/nori-analyzer.png)
+<span class='img_caption'>Fuzziness 설정 검색 결과</span>   
 
-[한글 jamo 7.3.2 버젼](https://github.com/renuevo/elastic-plugin-test)  
-[한글 jamo 플러그인](https://github.com/punxism/elasticsearch-hangul-jamo-plugin)  
+<br/>
+
+![nori-analyzer-result](./images/nori-analyzer-result.png)
+<span class='img_caption'>Fuzziness 설정 검색 결과</span>   
+
+<br/>
+
+이 처럼 일반적인 형태소를 통해서 색인을 하게 되면 검색에 알맞은 색인어가 추출됩니다  
+<span class='red_font'>하지만 이러한 색인어들로는 자동완성을 하기 부적절 합니다</span>  
+
+<br/>
+
+그래서 한글과 자동완성에 맞는 기능을 위해 Plugin을 설치해야 합니다  
+일반적으로 해당기능을 위해 많이 알려진 Plugin은 [한글 jamo 플러그인](https://github.com/punxism/elasticsearch-hangul-jamo-plugin)입니다  
+하지만 개인적으로 아쉽게도 해당 플러그인은 현재 4년전 5.2.2까지만 테스트가 진행 되었고 Maven으로 빌드되어 있습니다  
+(현재 Elastic에서는 Build로 Gradle을 사용합니다)
+
+<br/>
+
+그래서 이전에 사용하던 6.5.4와 7.3.2버젼의 호환성과 Gradle기반의 Elastic Plugin을 직접 제작하였습니다 :point_right: [한글 jamo 7.3.2 Custom 버젼](https://github.com/renuevo/elastic-plugin-test)  
+해당 github project는 Plugin 개발을 위한 Test용도이며 개발에는 Lucene과 Elastic의 Plugin 개발 지식이 필요합니다  
+Plugin 개발에 대해서는 이후 따로 포스팅할 예정이며 Elastic에서 제공하는 [Elastic Plugin](https://github.com/elastic/elasticsearch/tree/master/plugins)의 example을 보고 개발 가능합니다  
+
