@@ -284,11 +284,29 @@ GET autocomplete_test_2/_search
 그래서 한글과 자동완성에 맞는 기능을 위해 Plugin을 설치해야 합니다  
 일반적으로 해당기능을 위해 많이 알려진 Plugin은 [한글 jamo 플러그인](https://github.com/punxism/elasticsearch-hangul-jamo-plugin)입니다  
 하지만 개인적으로 아쉽게도 해당 플러그인은 현재 4년전 5.2.2까지만 테스트가 진행 되었고 Maven으로 빌드되어 있습니다  
-(현재 Elastic에서는 Build로 Gradle을 사용합니다)
+(현재 공식 [Elastic github](https://github.com/elastic/elasticsearch)에서는 Gradle을 기본으로 사용합니다)
 
 <br/>
 
 그래서 이전에 사용하던 6.5.4와 7.3.2버젼의 호환성과 Gradle기반의 Elastic Plugin을 직접 제작하였습니다 :point_right: [한글 jamo 7.3.2 Custom 버젼](https://github.com/renuevo/elastic-plugin-test)  
 해당 github project는 Plugin 개발을 위한 Test용도이며 개발에는 Lucene과 Elastic의 Plugin 개발 지식이 필요합니다  
 Plugin 개발에 대해서는 이후 따로 포스팅할 예정이며 Elastic에서 제공하는 [Elastic Plugin](https://github.com/elastic/elasticsearch/tree/master/plugins)의 example을 보고 개발 가능합니다  
+
+<br/>
+
+이제 자소분해 검색을 진행해보겠습니다  
+먼저 Plugin을 사용해서 신규 형태소 분석을 갖는 인덱스를 생성해 줍니다    
+```json
+인덱스
+```
+Tokenizer는 기본의 Ngram을 사용하고 글자를 파싱해서 가져오며 Filter부분에서 자음과모음을 분해해서 색인을 진행하게 합니다  
+그러면 다음과 같이 자음과모음이 분해된 색인어를 갖게 됩니다  
+
+이미지
+
+이후 자동완성으로 들어오는 검색어들에 대해서 같은 형태소로 분해해서 검색을 하는 방식으로 합성어의 대한 문제를 해결 할 수 있습니다  
+
+이미지
+
+다음과 같이 이후모음이 받침으로 와도 분해 및 검색을 통해 알맞은 결과를 가지고 오는 것을 볼 수 있습니다  
 
