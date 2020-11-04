@@ -1,6 +1,6 @@
 ---
 title: "[Elastic] 2. Elastic 자동완성 가이드 (Autocomplete Guide) - Index Search"
-date: 2020-10-24
+date: 2020-11-04
 category: 'Elastic'
 ---
 
@@ -53,6 +53,7 @@ PUT autocomplete_test_2
       },
       "tokenizer": {
         "autocomplete": {
+    /* highlight-range{1-7} */
           "type": "edge_ngram",
           "min_gram": 2,
           "max_gram": 20,
@@ -297,16 +298,138 @@ Plugin 개발에 대해서는 이후 따로 포스팅할 예정이며 Elastic에
 이제 자소분해 검색을 진행해보겠습니다  
 먼저 Plugin을 사용해서 신규 형태소 분석을 갖는 인덱스를 생성해 줍니다    
 ```json
-인덱스
+
+PUT autocomplete_test_jamo
+{
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "jamo_analyzer": {
+          "tokenizer": "ngram_token",
+          "filter": [
+            "lowercase",
+            "jamo-filter"
+          ]
+        }
+      },
+    /* highlight-range{1-5} */
+      "filter": {
+        "jamo-filter": {
+          "type": "jamo_filter",
+          "name": "jamo_filter"
+        }
+      },
+      "tokenizer": {
+        "ngram_token": {
+          "type": "edge_ngram",
+          "min_gram": 1,
+          "max_gram": 30,
+          "token_chars": [
+            "letter",
+            "digit"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "word": {
+        "type": "text",
+        "analyzer": "jamo_analyzer",
+        "search_analyzer": "jamo_analyzer"
+      }
+    }
+  }
+}
+
 ```
-Tokenizer는 기본의 Ngram을 사용하고 글자를 파싱해서 가져오며 Filter부분에서 자음과모음을 분해해서 색인을 진행하게 합니다  
-그러면 다음과 같이 자음과모음이 분해된 색인어를 갖게 됩니다  
+Tokenizer는 이전과 똑같이 Ngram을 사용하였습니다  
+이후 필터부분에 플러그인으로 제작한 `jamo_filter`를 등록해 줍니다  
 
-이미지
+<br/>
 
-이후 자동완성으로 들어오는 검색어들에 대해서 같은 형태소로 분해해서 검색을 하는 방식으로 합성어의 대한 문제를 해결 할 수 있습니다  
+여기서 Plugin의 코드를 잠시 살펴 보겠습니다  
+```java
 
-이미지
+public class JamoTokenFilter extends TokenFilter {
 
-다음과 같이 이후모음이 받침으로 와도 분해 및 검색을 통해 알맞은 결과를 가지고 오는 것을 볼 수 있습니다  
+    CharTermAttribute charTermAttribute = addAttribute(CharTermAttribute.class);
+    Parser parser;
 
+    protected JamoTokenFilter(TokenStream input, Parser parser) {
+        super(input);
+        this.parser = parser;
+    }
+
+    @Override
+    public boolean incrementToken() throws IOException {
+
+    /* highlight-range{1-5} */
+        if(input.incrementToken()){
+            String result = parser.parser(charTermAttribute.toString());
+            charTermAttribute.setEmpty().append(result);
+            return true;
+        }
+
+        return false;
+    }
+}
+
+```
+코드를 보시면 Ngram으로 파싱해서 가져온 글자를 `charTermAttribute.toString()`으로 받아옵니다  
+이후 parser로 자음과 모음을 분해해서 `charTermAttribute.setEmpty()`로 기존 색인어를 초기화하고 분해한 색인어 값을 추가해 줍니다  
+
+<br/>
+
+이렇게 등록하면 다음과 같이 자음과모음이 분해된 색인어를 갖게 됩니다  
+```json
+
+GET autocomplete_test_jamo/_analyze
+{
+  "analyzer": "jamo_analyzer",
+  "text" : "여성 트레이닝복 세트"
+}
+
+```
+
+![Custom Tokenizer Result](./images/custom-tokenizer-result.PNG)
+<span class='img_caption'>Jamo 형태소 분석 결과</span>   
+
+<br/>
+<br/>
+
+이후 다음과 같은 쿼리로 자모분해 검색이 가능합니다  
+```json
+
+GET autocomplete_test_jamo/_search
+{
+  "query": {
+    "match": {
+      "word": "트레인"
+    } 
+  }
+}
+
+```
+![Jamo Search Result](./images/jamo_search_result.png)
+<span class='img_caption'>Jamo 검색에 대한 결과</span>   
+
+<br/>
+<br/>
+
+이전 Index 생성시 등록한 `"search_analyzer": "jamo_analyzer"`를 통해 검색에 형태소가 적용되어 검색을 하게 됩니다   
+
+![Jamo Search View](./images/jamo_search_view.png)
+<span class='img_caption'>실제 내부 검색 형태</span>   
+덕분에 트레인이라고 검색하지만 `ㅌㅡㄹㅔㅇㅣㄴ`으로 검색하여 이후 자음이 받침으로와도 검색되도록 문제를 해결 할 수 있습니다  
+
+---
+
+<br/>
+
+이전에 말씀드린 고려사항 같은 방법을 응용하여 해결할 수 있습니다  
+> 3. 서비스적으로 :potato:`감자튀김`을 `ㄱㅈㅌㄱ`과 같이 검색 할 수 도 있다  
+
+이 경우는 따로 설명 드리지 않겠습니다  
+좋은 서비스를 만들기 위해 직접 실험하고 해보시길 권유 드립니다 🙋‍♂  
