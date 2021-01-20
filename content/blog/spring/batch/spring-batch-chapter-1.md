@@ -177,7 +177,7 @@ Spring Batch에서는 DB를 통해 `완료/실패`와 같은 `상태관리`를 �
 
 ![Spring Batch Meta Data Schema](./images/meta-data-erd.png)
 
- <span class='img_caption'>Source : [Spring Batch Doc](https://docs.spring.io/spring-batch/docs/3.0.x/reference/html/metaDataSchema.html) </span> 
+ <span class='img_caption'>Source : [Spring\_Batch\_Doc](https://docs.spring.io/spring-batch/docs/3.0.x/reference/html/metaDataSchema.html) </span> 
 
 
 
@@ -256,18 +256,16 @@ Spring Batch에서는 DB를 통해 `완료/실패`와 같은 `상태관리`를 �
 이외의 Step과 관련된 Meta Table은 생략하겠습니다  
 Job과 비슷하므로 한번 실행해 보시면 바로 이해 가능하실껍니다  
 
-추가적으로 Batch에서 Meta Table을 꼭 필요한 부분을 Spring의 DataSource 설정을 제외하므로 그냥 실행 가능합니다  
-
+추가적으로 Batch에서 Meta Table을 사용하지 않고 RunIdIncrementer을 설정해서 실행도 가능합니다  
 
 ```java
-@EnableBatchProcessing
-@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})  /* highlight-line */  
-public class BatchApplication {
-
-    public static void main(String[] args) {
-        SpringApplication.run(BatchApplication.class, args);
+    @Bean
+    public Job autoIncrementJob() {
+        return jobBuilderFactory.get("autoIncrementJob")
+                .incrementer(new RunIdIncrementer())
+                .start(autoIncrementStep())
+                .build();
     }
-}
 ```
 
 :warning:  <span class='red_font'>하지만 이 방식은 기존의 Spring Batch을 상태관리의 장점을 지워버리므로 추천드리지 않습니다</span>  

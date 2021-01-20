@@ -53,7 +53,7 @@ PUT autocomplete_test_2
       },
       "tokenizer": {
         "autocomplete": {
-    /* highlight-range{1-7} */
+          /* highlight-range{1-7} */
           "type": "edge_ngram",
           "min_gram": 2,
           "max_gram": 20,
