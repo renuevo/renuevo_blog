@@ -1,6 +1,6 @@
 ---
 title: "[Spring] Spring Boot 2.3.x Dependency 업그레이드"  
-date: 2021-03-21  
+date: 2021-03-22  
 category: 'Spring'
 ---
 
@@ -43,7 +43,8 @@ Spring Boot에서 Compile Dependencies의 optional로 지정되던 것들이 많
 
 
 Web과 WebFlux Starter의 Validation관련 디펜던시가 제외되었습니다  
-그래서 다음과 같이 의존성을 추가해 주어야 합니다  
+그래서 다음과 같이 의존성을 추가해 주어야 합니다
+
 ```groovy
 implementation ("org.springframework.boot:spring-boot-starter-validation")
 ```
@@ -53,23 +54,81 @@ implementation ("org.springframework.boot:spring-boot-starter-validation")
 <br/>
 
 ### lombok 버젼에 대한 사이드 이펙트
-버젼이 올라가면서 [lombok v1.18.16](https://projectlombok.org/changelog)에 `mapstruct`대한 의존성이 분리되었습니다  
+
+버젼이 올라가면서 [lombok v1.18.16](https://projectlombok.org/changelog)에 `mapstruct`대한 의존성이 분리되었습니다
+
 ```text
 BREAKING CHANGE: mapstruct users should now add a dependency to lombok-mapstruct-binding.  
 This solves compiling modules with lombok (and mapstruct).  
 ```
 
-프로젝트 내에서 mapstruct를 사용하시면 추가적으로 다음 의존성을 기입해야 합니다  
+프로젝트 내에서 mapstruct를 사용하시면 추가적으로 다음 의존성을 기입해야 합니다
+
 ```groovy
-annotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.2.0")  
+annotationProcessor("org.projectlombok:lombok-mapstruct-binding:${lombokMapstructVersion}")  
 ```
 
 ---
 
 <br/>
 
-### QueryDsl AnnotationProcessor로 변경  
-http://honeymon.io/tech/2020/07/09/gradle-annotation-processor-with-querydsl.html  
+### QueryDsl AnnotationProcessor로 변경
+기본적으로 이전에는 `com.ewerk.gradle.plugins.querydsl`  플러그인을 사용해서 querydsl의 설정을 해주었습니다  
+
+그렇지만 해당 플러그인을 사용하므로 부과적인 script를 작성해야하고  
+gradle 6.3 + multi module 환경에서 querydsl script가 제대로 작동하지 않는 문제가 있었습니다  
+
+<br/>
+
+그래서 gradle 4.x사용 가능한 annotationProcessor를 사용해서 깔끔하게 querydsl설정을 추가하였습니다  
+```groovy
+    implementation("com.querydsl:querydsl-jpa:${querydslVersion}")
+    annotationProcessor("com.querydsl:querydsl-apt:${querydslVersion}")
+    testImplementation("com.querydsl:querydsl-jpa:${querydslVersion}")
+    testAnnotationProcessor("com.querydsl:querydsl-apt:${querydslVersion}")
+```
+위의 설정으로 추가적인 script 작성없이 querydsl 잘 작동합니다    
+
+<br/>  
+
+추가적으로 intellij의 경우 build 설정에 따라서 QClass가 생성 경로가 달라집니다
+
+![intellij build setting](./images/intellij-setting.jpg)
+<span class='img_caption'>Intellij Build Setting</span>
+
+위의 Build and run using 설정에 따라서 QClass가 생성됩니다
+> Gradle : `build/generated/sources/annotationProcessor/java/main`  
+> Intellij : `src/main/generated`
+
+문제는 Gradle 설정을 사용하지 않을 경우 build내의 생성되는게 아니여서 clean과 같은 작업에서 QClass가 삭제되지 않습니다  
+그래서 아래 추가적으로 clean을 도와주는 script를 생성해 주어야 합니다  
+
+```groovy
+    // clean 태스크와 cleanGeneatedDir 태스크 중 취향에 따라서 선택하세요.
+    /** clean 태스크 실행시 QClass 삭제 */
+    clean {
+        delete file('src/main/generated') // 인텔리제이 Annotation processor 생성물 생성위치
+    }
+    
+    /**
+     * 인텔리제이 Annotation processor 에 생성되는 'src/main/generated' 디렉터리 삭제
+     */
+    task cleanGeneatedDir(type: Delete) { // 인텔리제이 annotation processor 가 생성한 Q클래스가 clean 태스크로 삭제되는 게 불편하다면 둘 중에 하나를 선택 
+        delete file('src/main/generated')
+    }
+
+```
+
+때문에 일반적으로는 Gradle로 설정하여 사용하는 방법을 추천드리며  
+보다 자세한 QueryDsl 설정은 :point_right: [honeymon.io님의 블로그](http://honeymon.io/tech/2020/07/09/gradle-annotation-processor-with-querydsl.html)
 
 ---
 
+<br/>
+
+### ActiveProfile의 변경  
+
+
+---
+
+:construction: 아직 작성중~
