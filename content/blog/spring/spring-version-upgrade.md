@@ -82,10 +82,14 @@ gradle 6.3 + multi module 환경에서 querydsl script가 제대로 작동하지
 
 그래서 gradle 4.x사용 가능한 annotationProcessor를 사용해서 깔끔하게 querydsl설정을 추가하였습니다  
 ```groovy
+    // jdk 9 이상의 버젼에서 추가
+    implementation("javax.annotation:javax.annotation-api:${annotationApiVersion}")
+    annotationProcessor("javax.annotation:javax.annotation-api:${annotationApiVersion}")
+
     implementation("com.querydsl:querydsl-jpa:${querydslVersion}")
-    annotationProcessor("com.querydsl:querydsl-apt:${querydslVersion}")
+    annotationProcessor("com.querydsl:querydsl-apt:${querydslVersion}:jpa")
     testImplementation("com.querydsl:querydsl-jpa:${querydslVersion}")
-    testAnnotationProcessor("com.querydsl:querydsl-apt:${querydslVersion}")
+    testAnnotationProcessor("com.querydsl:querydsl-apt:${querydslVersion}:jpa")
 ```
 위의 설정으로 추가적인 script 작성없이 querydsl 잘 작동합니다    
 
@@ -96,14 +100,15 @@ gradle 6.3 + multi module 환경에서 querydsl script가 제대로 작동하지
 ![intellij build setting](./images/intellij-setting.jpg)
 <span class='img_caption'>Intellij Build Setting</span>
 
-위의 Build and run using 설정에 따라서 QClass가 생성됩니다
+위의 Build and run using 설정에 따라서 QClass가 생성됩니다  
 > Gradle : `build/generated/sources/annotationProcessor/java/main`  
-> Intellij : `src/main/generated`
+> Intellij : `src/main/generated`  
 
 문제는 Gradle 설정을 사용하지 않을 경우 build내의 생성되는게 아니여서 clean과 같은 작업에서 QClass가 삭제되지 않습니다  
 그래서 아래 추가적으로 clean을 도와주는 script를 생성해 주어야 합니다  
 
 ```groovy
+
     // clean 태스크와 cleanGeneatedDir 태스크 중 취향에 따라서 선택하세요.
     /** clean 태스크 실행시 QClass 삭제 */
     clean {
