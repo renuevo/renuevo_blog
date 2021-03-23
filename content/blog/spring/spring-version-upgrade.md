@@ -124,8 +124,22 @@ gradle 6.3 + multi module 환경에서 querydsl script가 제대로 작동하지
 
 ```
 
-때문에 일반적으로는 Gradle로 설정하여 사용하는 방법을 추천드리며  
-보다 자세한 QueryDsl 설정은 :point_right: [honeymon.io님의 블로그](http://honeymon.io/tech/2020/07/09/gradle-annotation-processor-with-querydsl.html)
+때문에 일반적으로는 Gradle로 설정하여 사용하는 방법을 추천드리며 보다 자세한 QueryDsl 설정은 :point_right: [honeymon.io님의 블로그](http://honeymon.io/tech/2020/07/09/gradle-annotation-processor-with-querydsl.html)  
+
+<br/>
+
+부가적인 설정으로 intellij로 build 이후 계속해서 프로젝트에 <span class='red_font'>duplication class error</span>가 발생 할 수 있습니다  
+실제로 프로젝트의 build를 살펴보면 다음과 같이 2개의 중복된 generated class가 생성된게 보입니다  
+
+![intellij-auto-generated](./images/intellij-generated-auto_LI.jpg)
+<span class='img_caption'>Querydsl Generated Class</span>  
+
+<br/>
+
+generated 패키지의 class는 intellij 툴 자체에서 build하며 쓸데없이 class를 생성해서 만들어 집니다  
+때문에 아래와 같이 설정에서 auto build를 꺼주므로 duplication class가 생기는걸 방지 할 수 있습니다 :wrench:  
+
+![intellij-auto-build](./images/disable-auto-build-setting_LI.jpg)  
 
 ---
 
