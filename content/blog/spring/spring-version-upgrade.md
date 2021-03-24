@@ -146,6 +146,45 @@ generated 패키지의 class는 intellij 툴 자체에서 build하며 쓸데없�
 <br/>
 
 ### ActiveProfile의 변경  
+테스트에서 많이 사용하던 ActiveProfile Annotation에 변화가 있었습니다  
+:point_right: [Activating multiple profiles with @ActiveProfiles](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-2.3-Release-Notes#activating-multiple-profiles-with-activeprofiles)  
+
+<br/>
+
+이전에는 단일로 쓰던 `@ActiveProfile`이 배열로 여러 설정을 받을 수 있게 되었습니다  
+덕분에 생각지도 못한 에러를 경험하였습니다  
+
+```java
+@ActiveProfile("test")
+@SpringBootTest
+class Test(){
+ ...... 
+}
+```
+테스트에서 어노테이션을 사용중에 서비스에서 Environment로 active profile을 가지고 오는 곳에서 에러가 발생했습니다  
+아래와 같이 spring.profiles.active로 가지고 오던 active profile 값을 가지고 올 수 없게 되었습니다
+```java
+environment.getProperty("spring.profiles.active") X
+```
+
+실제로 내부적으로 application.yml은 test의 property를 잘 읽어오지만 Environment 내에는 이전과 달리 배열 형식으로 들어가게 됩니다  
+```java
+environment.getProperty("spring.profiles.active") -> null
+environment.getProperty("spring.profiles") -> test
+environment.getProperty("spring.profiles.active[0]") -> test
+```
+
+<br/>
+
+그래서 정상적인 동작을 위해 수정이 필요합니다   
+1. 내부적으로 environment.getProperty("spring.profiles.active")을 사용하는 로직을 수정한다
+2. @ActiveProfile을 제거하고 test task에서 `spring.profiles.active를 test로 강제한다`   
+```groovy
+    test {
+        useJUnitPlatform()
+        systemProperty "spring.profiles.active", "test"
+    }
+```
 
 
 ---
