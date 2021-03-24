@@ -2,7 +2,7 @@ module.exports = {
   title: `renuevo blog`,
   description: `development`,
   author: `deokhwa kim`,
-  introduction: `검색엔진 & Spring & Data를 다루고 있습니다 / 요즘은 Kotlin, Reactive Programing에 관심이 많습니다`,
+  introduction: `Backend Engineer / Spring / Elastic / Kotlin / Webflux`,
   siteUrl: `https://renuevo.github.io`, // Your blog site url
   social: {
     twitter: ``, // Your Twitter account
