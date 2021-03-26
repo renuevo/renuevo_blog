@@ -177,8 +177,9 @@ environment.getProperty("spring.profiles.active[0]") -> test
 <br/>
 
 그래서 정상적인 동작을 위해 수정이 필요합니다   
-1. 내부적으로 environment.getProperty("spring.profiles.active")을 사용하는 로직을 수정한다
-2. @ActiveProfile을 제거하고 test task에서 `spring.profiles.active를 test로 강제한다`   
+1. 내부적으로 environment.getProperty("spring.profiles.active")을 사용하는 로직을 수정한다  
+2. environment.getProperty("spring.profiles")로 정의부 프로파일을 가져온다  
+3. @ActiveProfile을 제거하고 test task에서 `spring.profiles.active를 test로 강제한다`   
 ```groovy
     test {
         useJUnitPlatform()
@@ -186,7 +187,11 @@ environment.getProperty("spring.profiles.active[0]") -> test
     }
 ```
 
+<br/>
 
----
+추가적으로 이후 [spring boot 2.4.x](https://spring.io/blog/2020/08/14/config-file-processing-in-spring-boot-2-4)에서는 spring.profiles에 많은 부분이 변경됩니다  
 
-:construction: 아직 작성중~
+1. `spring.profiles.active` :point_right: `spring.config.activate.on-profile`  
+2. New feature `spring.profiles.group`  
+
+등등 계속해서 변경되고 추가되는 기능으로 Spring Release Notes에 관심을 기울여 분기에 한번씩은 살펴 봐야 겠습니다 :smiley:  
