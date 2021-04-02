@@ -137,8 +137,9 @@ public class AopTest {
     private void logging(){}
     
     @Around("logging()")
-    public void aopBefore(){
+    public void aopAround(ProceedingJoinPoint joinPoint) throws Throwable {
         log.info("aop around");
+        return joinPoint.proceed();
     }
     ...
 }
