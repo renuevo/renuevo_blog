@@ -17,3 +17,14 @@ category: 'Spring'
 1. model 앞에 `@ModelAttribute`를 어노테이션을 기입해야 한다  
 2. request 모델을 기본 생성자를 가지고 있어야 한다  
 3. request 모델의 binding은 `setter`를 통해 이루어 진다  
+
+
+
+webflux -> ModelInitializer, ModelAttributeMethodArgumentResolver
+mvc -> ServletModelAttributeMethodProcessor, ModelAttributeMethodProcessor
+
+```java
+
+
+
+```
