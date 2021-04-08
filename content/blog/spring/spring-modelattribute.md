@@ -25,6 +25,82 @@ mvc -> ServletModelAttributeMethodProcessor, ModelAttributeMethodProcessor
 
 ```java
 
+public class ServletModelAttributeMethodProcessor extends ModelAttributeMethodProcessor {
+}
 
+
+public class ModelAttributeMethodProcessor implements HandlerMethodArgumentResolver, HandlerMethodReturnValueHandler {
+
+......
+
+    @Override
+	@Nullable
+	public final Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer,
+			NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) throws Exception {
+
+		Assert.state(mavContainer != null, "ModelAttributeMethodProcessor requires ModelAndViewContainer");
+		Assert.state(binderFactory != null, "ModelAttributeMethodProcessor requires WebDataBinderFactory");
+
+		String name = ModelFactory.getNameForParameter(parameter);
+		ModelAttribute ann = parameter.getParameterAnnotation(ModelAttribute.class);
+		if (ann != null) {
+			mavContainer.setBinding(name, ann.binding());
+		}
+
+		Object attribute = null;
+		BindingResult bindingResult = null;
+
+		if (mavContainer.containsAttribute(name)) {
+			attribute = mavContainer.getModel().get(name);
+		}
+		else {
+			// Create attribute instance
+			try {
+				attribute = createAttribute(name, parameter, binderFactory, webRequest);
+			}
+			catch (BindException ex) {
+				if (isBindExceptionRequired(parameter)) {
+					// No BindingResult parameter -> fail with BindException
+					throw ex;
+				}
+				// Otherwise, expose null/empty value and associated BindingResult
+				if (parameter.getParameterType() == Optional.class) {
+					attribute = Optional.empty();
+				}
+				bindingResult = ex.getBindingResult();
+			}
+		}
+
+		if (bindingResult == null) {
+			// Bean property binding and validation;
+			// skipped in case of binding failure on construction.
+			WebDataBinder binder = binderFactory.createBinder(webRequest, attribute, name);
+			if (binder.getTarget() != null) {
+				if (!mavContainer.isBindingDisabled(name)) {
+					bindRequestParameters(binder, webRequest);
+				}
+				validateIfApplicable(binder, parameter);
+				if (binder.getBindingResult().hasErrors() && isBindExceptionRequired(binder, parameter)) {
+					throw new BindException(binder.getBindingResult());
+				}
+			}
+			// Value type adaptation, also covering java.util.Optional
+			if (!parameter.getParameterType().isInstance(attribute)) {
+				attribute = binder.convertIfNecessary(binder.getTarget(), parameter.getParameterType(), parameter);
+			}
+			bindingResult = binder.getBindingResult();
+		}
+
+		// Add resolved attribute and BindingResult at the end of the model
+		Map<String, Object> bindingResultModel = bindingResult.getModel();
+		mavContainer.removeAttributes(bindingResultModel);
+		mavContainer.addAllAttributes(bindingResultModel);
+
+		return attribute;
+	}
+	
+......
+
+}
 
 ```
