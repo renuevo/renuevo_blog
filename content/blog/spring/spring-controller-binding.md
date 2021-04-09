@@ -1,5 +1,5 @@
 ---
-title: "[Spring] Spring @ModelAttribute가 이전과 다르다?"
+title: "[Spring] Controller Binding 이전과 다르다?"
 date: 2021-04-04
 category: 'Spring'
 ---
@@ -18,10 +18,74 @@ category: 'Spring'
 2. request 모델을 기본 생성자를 가지고 있어야 한다  
 3. request 모델의 binding은 `setter`를 통해 이루어 진다  
 
+---
+
+<br/>
+
+먼저 `ModelAttribute`가 필요한지 부터 살펴보겠습니다  
+매핑되는 데이터들의 리졸버들이 등록되는 [RequestMappingHandlerAdapter.class](https://github.com/spring-projects/spring-framework/blob/master/spring-webmvc/src/main/java/org/springframework/web/servlet/mvc/method/annotation/RequestMappingHandlerAdapter.java)를 살펴 보겠습니다
+
+![spring-RequestMappingHandlerAdapter](./images/spring-RequestMappingHandlerAdapter.png)
+<span class='img_caption'>스프링의 RequestMappingHandlerAdapter</span>
+
+위와 같이 같은 클래스명이 패키지로 나뉘어서 mvc와 webflux를 구분하여 구현되어 있고 데이터 바인딩도 각각 다르게 이루어 집니다  
+
+<br/>
+
+### MVC의 경우  
+먼저 MVC는 RequestMappingHandlerAdapter 클래스 내부에서 리졸버들을 등록합니다  
+
+```java
+private List<HandlerMethodArgumentResolver> getDefaultArgumentResolvers() {
+		List<HandlerMethodArgumentResolver> resolvers = new ArrayList<>();
+		
+		// Annotation-based argument resolution
+		resolvers.add(new RequestParamMethodArgumentResolver(getBeanFactory(), false));
+		resolvers.add(new RequestParamMapMethodArgumentResolver());
+		resolvers.add(new PathVariableMethodArgumentResolver());
+		resolvers.add(new PathVariableMapMethodArgumentResolver());
+		resolvers.add(new MatrixVariableMethodArgumentResolver());
+		resolvers.add(new MatrixVariableMapMethodArgumentResolver());
+		resolvers.add(new ServletModelAttributeMethodProcessor(false));  /* highlight-line */  
+		resolvers.add(new RequestResponseBodyMethodProcessor(getMessageConverters(), this.requestResponseBodyAdvice));
+		resolvers.add(new RequestPartMethodArgumentResolver(getMessageConverters(), this.requestResponseBodyAdvice));
+		resolvers.add(new RequestHeaderMethodArgumentResolver(getBeanFactory()));
+		resolvers.add(new RequestHeaderMapMethodArgumentResolver());
+		resolvers.add(new ServletCookieValueMethodArgumentResolver(getBeanFactory()));
+		resolvers.add(new ExpressionValueMethodArgumentResolver(getBeanFactory()));
+		resolvers.add(new SessionAttributeMethodArgumentResolver());
+		resolvers.add(new RequestAttributeMethodArgumentResolver());
+
+		// Type-based argument resolution
+		resolvers.add(new ServletRequestMethodArgumentResolver());
+		resolvers.add(new ServletResponseMethodArgumentResolver());
+		resolvers.add(new HttpEntityMethodProcessor(getMessageConverters(), this.requestResponseBodyAdvice));
+		resolvers.add(new RedirectAttributesMethodArgumentResolver());
+		resolvers.add(new ModelMethodProcessor());
+		resolvers.add(new MapMethodProcessor());
+		resolvers.add(new ErrorsMethodArgumentResolver());
+		resolvers.add(new SessionStatusMethodArgumentResolver());
+		resolvers.add(new UriComponentsBuilderMethodArgumentResolver());
+
+		// Custom arguments
+		if (getCustomArgumentResolvers() != null) {
+			resolvers.addAll(getCustomArgumentResolvers());
+		}
+
+        /* highlight-range{1-3} */  
+		// Catch-all
+		resolvers.add(new RequestParamMethodArgumentResolver(getBeanFactory(), true));
+		resolvers.add(new ServletModelAttributeMethodProcessor(true));
+
+		return resolvers;
+}
+
+```
 
 
-webflux -> ModelInitializer, ModelAttributeMethodArgumentResolver
 mvc -> ServletModelAttributeMethodProcessor, ModelAttributeMethodProcessor
+webflux -> ModelInitializer, ModelAttributeMethodArgumentResolver
+
 
 ```java
 
