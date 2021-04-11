@@ -18,8 +18,6 @@ category: 'Spring'
 2. request 모델을 기본 생성자를 가지고 있어야 한다  
 3. request 모델의 binding은 `setter`를 통해 이루어 진다  
 
----
-
 <br/>
 
 먼저 `ModelAttribute`가 필요한지 부터 살펴보겠습니다  
@@ -28,7 +26,11 @@ category: 'Spring'
 ![spring-RequestMappingHandlerAdapter](./images/spring-RequestMappingHandlerAdapter.png)
 <span class='img_caption'>스프링의 RequestMappingHandlerAdapter</span>
 
-위와 같이 같은 클래스명이 패키지로 나뉘어서 mvc와 webflux를 구분하여 구현되어 있고 데이터 바인딩도 각각 다르게 이루어 집니다  
+위와 같이 같은 클래스명이 패키지로 나뉘어서 mvc와 webflux를 구분하여 구현되어 있고 데이터 바인딩도 각각 다른 클래스에서 이루어 집니다    
+
+<br/>
+
+---
 
 <br/>
 
@@ -36,12 +38,13 @@ category: 'Spring'
 먼저 MVC는 RequestMappingHandlerAdapter 클래스 내부에서 리졸버들을 등록합니다  
 
 ```java
+
 private List<HandlerMethodArgumentResolver> getDefaultArgumentResolvers() {
 		List<HandlerMethodArgumentResolver> resolvers = new ArrayList<>();
 		
 		// Annotation-based argument resolution
 		resolvers.add(new RequestParamMethodArgumentResolver(getBeanFactory(), false));
-		resolvers.add(new RequestParamMapMethodArgumentResolver());
+		resolvers.add(new RequestParamMapMethodArgumentResolver());    /* highlight-line */  
 		resolvers.add(new PathVariableMethodArgumentResolver());
 		resolvers.add(new PathVariableMapMethodArgumentResolver());
 		resolvers.add(new MatrixVariableMethodArgumentResolver());
@@ -81,6 +84,35 @@ private List<HandlerMethodArgumentResolver> getDefaultArgumentResolvers() {
 }
 
 ```
+다음과 같이 스프링에는 많은 리졸버들을 등록하여 데이터를 바인딩합니다  
+여기서 살펴볼게 ServletModelAttributeMethodProcessor, RequestParamMethodArgumentResolver 입니다  
+
+각각 위와 아래 객체를 2번을 생성해서 등록하고 있습니다  
+// Catch-all 쪽에 선언된 객체들이 Controller에 어노테이션이 붙지 않았을때 catch해서 바인딩합니다  
+때문에 `@ModelAttribute`이 붙지 않아도 정상적으로 데이터 바인딩이 이루어 집니다
+
+<br/>  
+
+때문에 딱히 @ModelAttribute를 붙일 필요없고 예전 책으로 배운사람들만 붙이는 느낌이.. :older_adult: :disappointed_relieved:  
+
+<br/>
+
+---
+
+<br/>
+
+### WEBFLUX의 경우  
+RequestMappingHandlerAdapter의 ModelInitializer를 통해서 바인딩이 이루어 집니다  
+
+
+
+```java
+
+public class ServletModelAttributeMethodProcessor extends ModelAttributeMethodProcessor {
+}
+
+```
+ServletModelAttributeMethodProcessor는 mvc에서 모델을 바인딩하는 
 
 
 mvc -> ServletModelAttributeMethodProcessor, ModelAttributeMethodProcessor
