@@ -1,23 +1,23 @@
 ---
 title: 'about'
-date: 2019-11-24 23:30:00
+date: 2022-06-06 20:17:00
 lang: 'ko'
 ---
 
-# Deokhwa Kim
-<div align="center">
-<figure style="max-width:200px; width: 80%;">
+# 🦆 My Profile
+
+<div style="text-align:center">
+<figure style="margin: 0 auto; max-width:200px; width: 80%;">
 
 ![profile](../assets/profile.png)
 
 </figure>
 
-Deokhwa Kim  
-29 age  
-BackEnd Programer  
-Kakaopay Corp
+👨 Deokhwa Kim  
+🎂 30 age  
+👨‍💻 Backend Engineer  
+💳 Kakaopay Corp  
 
-</div>
 
 <br/>
 <br/>
