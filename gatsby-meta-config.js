@@ -8,7 +8,7 @@ module.exports = {
     twitter: ``, // Your Twitter account
     github: `renuevo`, // Your GitHub account
     medium: ``, // Your Medium account
-    facebook: `deokhwa.kim.75`, // Your Facebook account
+    facebook: ``, // Your Facebook account
   },
   icon: `content/assets/favicon.png`, // Add your favicon
   keywords: [`blog`,
