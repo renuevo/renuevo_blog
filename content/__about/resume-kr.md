@@ -22,4 +22,4 @@ lang: 'ko'
 <br/>
 <br/>
 
-![dev-profile](./images/dev-flow.png)
+![dev-profile](./images/career_path.png)
