@@ -35,7 +35,7 @@
     "gatsby-transformer-sharp": "^2.2.19",
     "intersection-observer": "^0.7.0",
     "lodash": "^4.17.15",
-    "node-sass": "^4.12.0",
+    "sass": "^1.52.3",
     "prismjs": "^1.17.1",
     "react": "^16.10.1",
     "react-disqus-comments": "^1.4.0",
