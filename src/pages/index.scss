@@ -10,7 +10,14 @@ body {
   -moz-osx-font-smoothing: grayscale;
   transition: background-color 0.3s, color 0.3s;
 
-  .main-container {
+  .about {
+    td:first-child {
+      font-weight: bold;
+      font-family: 'Noto Sans KR', sans-serif;
+      width: 10rem;
+      text-align: right;
+    }
+
     max-width: 60vw;
     @media screen and (max-width: $screen-small) {
       max-width: 39rem;
@@ -40,6 +47,11 @@ body {
       .MuiInputBase-input {
         padding: 6px 0 5px;
       }
+    }
+
+    .red_font {
+      color: $navigator-text-color;
+      font-weight: bold;
     }
   }
 }
