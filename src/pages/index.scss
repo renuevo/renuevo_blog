@@ -49,6 +49,10 @@ body {
       }
     }
 
+    li {
+      color: $dark-gray
+    }
+
     .red_font {
       color: $navigator-text-color;
       font-weight: bold;
