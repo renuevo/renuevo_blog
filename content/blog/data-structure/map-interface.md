@@ -127,7 +127,7 @@ HashMap은 처음 생성될시에 기본적으로 16개의 Node를 저장할 수
 
 1. **Buckets 사이즈 조절**  
 이전에 알아본 hash값을 기반으로 `(table.length - 1) & hash` buckets내의 자리를 찾고 그곳에 Node를 저장하게 됩니다  
-이후 16개의 DEFAULT_LOAD_FACTOR(75%)비율이 차게되면 buckets값을 2배 늘리고 값을 재분배하는 과정을 거칩니다  
+이후 16개의 DEFAULT\_LOAD\_FACTOR(75%)비율이 차게되면 buckets값을 2배 늘리고 값을 재분배하는 과정을 거칩니다  
 
 ![hash buckets](./images/hash-bucket.png)
 <span class='img_caption'>Source : [Hash Table Wiki](https://en.wikipedia.org/wiki/Hash_table) </span>
@@ -136,7 +136,7 @@ HashMap은 처음 생성될시에 기본적으로 16개의 Node를 저장할 수
 
 2. **Linked List**  
 Node를 보시면 `Node<K,V> next`를 보실 수 있습니다  
-같은 Buckets 인덱스에 할당되면 value를 확인하고 다른 값이면 Linked List로 다음 Node로 해당 값을 저장합니다  
+key의 hash가 같은 Buckets 인덱스에 할당되면 key를 확인하고 다른 값이면 Linked List로 다음 Node로 해당 값을 저장합니다  
 이런 방식을 Separate Chaining(분리 연결법)이라고 합니다 👉 밑에서 자세히 살펴 보겠습니다    
 
 
@@ -147,42 +147,40 @@ Node를 보시면 `Node<K,V> next`를 보실 수 있습니다
 
 3. **Red-Black Tree**  
 Linked List로 값을 저장하면 탐색 시간이 늘어나기 때문에 값이 늘어나면 효율적이지 않습니다  
-그래서 TREEIFY_THRESHOLD(8)로 연결이 늘어나게 되면 Node를 `treeifyBin()`를 통해 TreeNode로 변경합니다  
-이후 효율적인 레드블랙트리 알고리즘으로 저장합니다  
+그래서 TREEIFY\_THRESHOLD(8)로 연결이 늘어나게 되면 Node를 `treeifyBin()`를 통해 TreeNode로 변경합니다  
+그리고 효율적인 레드블랙트리 알고리즘으로 저장합니다  
 
 👉 [Red-Black Tree (레드블랙 트리) Wiki](https://ko.wikipedia.org/wiki/%EB%A0%88%EB%93%9C-%EB%B8%94%EB%9E%99_%ED%8A%B8%EB%A6%AC)  
 
 
 <br/>
 
-
-
-
-
+**다음으로 put의 코드를 살펴보겠습니다**  
 ```java
-
-
-
 
 final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
                    boolean evict) {
         Node<K,V>[] tab; Node<K,V> p; int n, i;
-        if ((tab = table) == null || (n = tab.length) == 0)
+  (1)   if ((tab = table) == null || (n = tab.length) == 0) /* highlight-line */  
             n = (tab = resize()).length;
-        if ((p = tab[i = (n - 1) & hash]) == null)
+  (2)   if ((p = tab[i = (n - 1) & hash]) == null) /* highlight-line */  
             tab[i] = newNode(hash, key, value, null);
-        else {
+  (3)   else { /* highlight-line */  
             Node<K,V> e; K k;
-            if (p.hash == hash &&
+             /* highlight-range{1-3} */ 
+  (4)       if (p.hash == hash &&
                 ((k = p.key) == key || (key != null && key.equals(k))))
                 e = p;
-            else if (p instanceof TreeNode)
-                e = ((TreeNode<K,V>)p).putTreeVal(this, tab, hash, key, value);
-            else {
+            /* highlight-range{1-2} */ 
+  (5)       else if (p instanceof TreeNode)
+                e = ((TreeNode<K,V>)p).putTreeVal(this, tab, hash, key, value);                
+            /* highlight-range{1-2} */  
+  (6)       else {
                 for (int binCount = 0; ; ++binCount) {
                     if ((e = p.next) == null) {
                         p.next = newNode(hash, key, value, null);
-                        if (binCount >= TREEIFY_THRESHOLD - 1) // -1 for 1st
+                        /* highlight-range{1-2} */ 
+  (7)                   if (binCount >= TREEIFY_THRESHOLD - 1) // -1 for 1st
                             treeifyBin(tab, hash);
                         break;
                     }
@@ -201,31 +199,90 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
             }
         }
         ++modCount;
-        if (++size > threshold)
+       /* highlight-range{1-2} */ 
+ (8)    if (++size > threshold)
             resize();
         afterNodeInsertion(evict);
         return null;
     }
 
+```  
+생각보다 put의 소스 자체가 복잡해 보입니다  
+여기서 주요 핵심부분을 8개로 나눠서 분류하고 하나씩 뜯어보겠습니다    
 
+<br/>
 
-```
+<span class='red_font'>(1)</span> `if ((tab = table) == null || (n = tab.length) == 0)`  
+> 처음 등장하는 조건문입니다  
+> buckets이 null 이거나 사이즈가 0인지를 체크하여 resize()를 통해 저장소를 생성합니다  
 
+<br/>
+
+<span class='red_font'>(2)</span> `if ((p = tab[i = (n - 1) & hash]) == null)`
+> hash의 buckets내의 index를 계산하고 null일 경우 Node를 바로 저장하는 조건문입니다  
+
+<br/>
+
+<span class='red_font'>(3)</span> `else`
+> hash의 buckets내의 index를 계산하고 null이 아닌 Node가 이미 들어 있는 경우입니다  
+> <span class='red_font'>(4), (5), (6)</span>을 통해 put을 진행합니다  
+
+<br/>
+
+<span class='red_font'>(4)</span> ` if (p.hash == hash && ((k = p.key) == key || (key != null && key.equals(k))))`
+> hash와 key의 값을 비교하여 같은 key의 value 변경인지를 확인합니다  
+> 같은 key로 확인되면 단순히 Node의 value값을 변경합니다  
 
 
 <br/>
+
+<span class='red_font'>(5)</span> `else if (p instanceof TreeNode)`
+> TreeNode 여부를 확인하여 Tree구조로 put을 진행합니다  
+
+<br/>
+
+<span class='red_font'>(6)</span> `else { for (int binCount = 0; ; ++binCount)`
+> Node의 Linked List를 탐색하며 put을 진행합니다  
+
+<br/>
+
+<span class='red_font'>(7)</span> `if (binCount >= TREEIFY_THRESHOLD - 1) // -1 for 1st`
+> <span class='red_font'>(6)</span>의 탐색을 진행하며 binCount가 너무 늘어나 탐색이 느려지는 기준점 TREEIFY\_THRESHOLD(8)에  
+> 도달하게 된다면 `treeifyBin(tab, hash);`를 통해서 Node를 TreeNode로 변경합니다  
+
+<br/>
+
+<span class='red_font'>(8)</span> `if (++size > threshold)`
+> 마지막으로 buckets의 사이즈를 확인하여 resize() 여부를 결정합니다  
+
+<br/>
+
+
+이것으로 HashMap의 구조를 알아 봤습니다  
+단순히 저장해서 가져다가 쓰기만 했었는데 생각보다 내부에서는 다양한 알고리즘이 반영된걸 알 수 있었습니다  
+
+<br/>
+
+다음은 HashMap 이전에 존재했던 HashTable에 대해 알아보겠습니다  
 
 --- 
 
-###HashTable (해시테이블)  
-
 <br/>
+
+##HashTable (해시테이블)  
+
+
+
 
 --- 
 
-###ConcurrentHashMap(병행해시맵)  
+<br/>
+
+##ConcurrentHashMap(병행해시맵)  
 
 <br/>
+
+---
 
 ## Hash Collision(해시 충돌)
 
@@ -240,10 +297,12 @@ HashTable의 충돌발생시 해결법을 알고 있느냐는 질문을 받았�
 그때 당시 Separate Chaining(분리 연결법)의 방법을 알고 있었지만,   
 충돌자체를 thread-safe여부로 받아들여 HashTable은 충돌이 발생하지 않는 걸로 알고 있다고 답해버렸습니다 😭  
 
-이를 계기로 명확하게 구조를 보고 정리하는 시간을 갖게 되었습니다  
+이를 계기로 명확하게 구조를 보고 정리하는 시간을 갖게 되었습니다 👋  
 
 ---  
 
 ## 관련 참고
+[Hash table 위키](https://en.wikipedia.org/wiki/Hash_table)  
 [네이버 D2 포스팅](https://d2.naver.com/helloworld/831311)   
 [망나니개발자님 블로그](https://mangkyu.tistory.com/102)  
+[겐지충프로그래머님 블로그](https://hongjw1938.tistory.com/17?category=884192)  
