@@ -394,40 +394,40 @@ private void addEntry(int hash, K key, V value, int index) {
 
 ```
 
-HashMap과 다르게 간단한 put 구조를 가지고 있습니다  
+HashMap과 다르게 간단한 put 구조를 가지고 있습니다
 
 <br/>
 
 <span class='red_font'>(1)</span> `public synchronized V put(K key, V value)`
 > synchronized를 통해 thread-safe하게 설계된걸 확인 할 수 있습니다  
-> 이후 HashMap에서는 사용상에 thread-safe 구성이 효율적이지 않다고 삭제되었습니다  
+> 이후 HashMap에서는 사용상에 thread-safe 구성이 효율적이지 않다고 삭제되었습니다
 
 <br/>
 
 <span class='red_font'>(2)</span> ` if (value == null) { throw new NullPointerException(); }`
-> HashMap과 다르게 value에 null을 허용하지 않습니다   
+> HashMap과 다르게 value에 null을 허용하지 않습니다
 
 <br/>
 
 <span class='red_font'>(3)</span> `int hash = key.hashCode();`
 > key값도 보조해시 없이 그냥 hashCode()를 사용합니다  
-> 때문제 key에서도 null이 허용되지 않습니다 (HashMap에서는 보조해시에서 null일 경우 0을 할당합니다)  
+> 때문제 key에서도 null이 허용되지 않습니다 (HashMap에서는 보조해시에서 null일 경우 0을 할당합니다)
 
 <br/>
 
 <span class='red_font'>(4)</span> `for(; entry != null ; entry = entry.next) `
-> Entry를 탐색하며 값변경만을 적용합니다  
+> Entry를 탐색하며 값변경만을 적용합니다
 
 
 <br/>
 
 <span class='red_font'>(5)</span> `addEntry(hash, key, value, index);`
-> addEntry를 통해 신규 Entry를 buckets에 삽입합니다  
+> addEntry를 통해 신규 Entry를 buckets에 삽입합니다
 
 <br/>
 
 <span class='red_font'>(6)</span> `if (count >= threshold)`
-> buckets의 Entry사이즈를 확인하여 rehash() 여부를 결정합니다  
+> buckets의 Entry사이즈를 확인하여 rehash() 여부를 결정합니다
 
 
 <br/>
@@ -438,6 +438,34 @@ HashMap과 다르게 간단한 put 구조를 가지고 있습니다
 
 ##ConcurrentHashMap(병행해시맵)
 
+```java
+
+private static final Unsafe U = Unsafe.getUnsafe();
+
+ static {
+     ......
+     
+     ABASE = U.arrayBaseOffset(Node[].class);
+     int scale = U.arrayIndexScale(Node[].class);
+     ASHIFT = 31 - Integer.numberOfLeadingZeros(scale);
+     
+     ......
+}
+
+static final <K,V> Node<K,V> tabAt(Node<K,V>[] tab, int i) {
+  return (Node<K,V>)U.getObjectAcquire(tab, ((long)i << ASHIFT) + ABASE);
+}
+
+static final <K,V> boolean casTabAt(Node<K,V>[] tab, int i,
+                                  Node<K,V> c, Node<K,V> v) {
+  return U.compareAndSetObject(tab, ((long)i << ASHIFT) + ABASE, c, v);
+}
+
+
+```
+
+[java-unsafe](https://www.baeldung.com/java-unsafe)  
+
 <br/>
 
 ---
@@ -446,8 +474,13 @@ HashMap과 다르게 간단한 put 구조를 가지고 있습니다
 
 ###Separate Chaining(분리 연결법)
 
+![separate-chaining](./images/separate-chaining.png)  
+<span class='img_caption'>Source : [Hash Table Wiki](https://en.wikipedia.org/wiki/Hash_table) </span>
+
 ###Open Addressing(개방 주소법)
 
+![open-addressing](./images/open-addressing.png)  
+<span class='img_caption'>Source : [Hash Table Wiki](https://en.wikipedia.org/wiki/Hash_table) </span>
 
 ---
 
@@ -466,4 +499,5 @@ HashTable의 충돌발생시 해결법을 알고 있느냐는 질문을 받았�
 [Hash table 위키](https://en.wikipedia.org/wiki/Hash_table)  
 [네이버 D2 포스팅](https://d2.naver.com/helloworld/831311)   
 [망나니개발자님 블로그](https://mangkyu.tistory.com/102)  
+[alsgus92.log](https://velog.io/@alsgus92/ConcurrentHashMap%EC%9D%98-Thread-safe-%EC%9B%90%EB%A6%AC)  
 [겐지충프로그래머님 블로그](https://hongjw1938.tistory.com/17?category=884192)  
