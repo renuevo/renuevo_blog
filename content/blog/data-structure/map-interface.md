@@ -1,5 +1,5 @@
 ---
-title: "[DataStructure] HashMap, HashTable과 ConcurrentHashMap 대한 정리"
+title: "[DataStructure] HashMap, HashTable과 ConcurrentHashMap 차이점"
 date: 2022-07-30
 category: 'Data Structure'
 ---
@@ -437,6 +437,13 @@ HashMap과 다르게 간단한 put 구조를 가지고 있습니다
 <br/>
 
 ##ConcurrentHashMap(병행해시맵)
+다음으로 알아볼 것은 ConcurrentHashMap 입니다  
+ConcurrentHashMap의 핵심은 Unsafe를 사용한 <span class='red_font'>thread-safe</span>를 지원한다는 것입니다
+
+`Unsafe`는 java 내부의 존재하는 thread-safe를 위해 존재하는 class입니다  
+내부적으로 AutoInteger, ConcurrentHashMap등의 thread-safe에 사용되며 일반적으로는 생성해서 사용하지 못하도록  
+`private static final Unsafe theUnsafe = new Unsafe();`로 생성자를 막아 두었습니다  
+해당 포스트에서는 다루지 않습니다 👉 [java-unsafe](https://www.baeldung.com/java-unsafe)
 
 ```java
 
@@ -461,26 +468,211 @@ static final <K,V> boolean casTabAt(Node<K,V>[] tab, int i,
   return U.compareAndSetObject(tab, ((long)i << ASHIFT) + ABASE, c, v);
 }
 
+```
+
+ConcurrentHashMap는 내부의 thread-safe를 위해 조회와 삽입을 하는 메소드가 구현되어 있습니다  
+tabAt는 thread-safe하게 조회를 하고 casTabAt는 thread-safe하게 삽입시 성공여부에 따라 `true`, `false`를 return 합니다
+
+해당 메소드들을 통해 알 수 있듯이 HashTable과 다르게 각각의 Node의 대한 thread-safe 기술을 활용하여  
+HashMap의 thread-safe가 안되는 문제를 효율적으로 제어하였습니다
+
+
+<br/>
+<br/>
+
+**다음으로 put의 코드를 살펴보겠습니다**
+
+```java
+
+ static final int MOVED     = -1; // hash for forwarding nodes
+
+ //보조 해시
+ static final int spread(int h) {
+     return (h ^ (h >>> 16)) & HASH_BITS;
+ }
+ 
+ //resize를 위한 Node
+  static final class ForwardingNode<K,V> extends Node<K,V> {
+     final Node<K,V>[] nextTable;
+     ForwardingNode(Node<K,V>[] tab) {
+         super(MOVED, null, null);
+         this.nextTable = tab;
+     }
+     
+     ......
+  }
+
+
+
+final V putVal(K key, V value, boolean onlyIfAbsent) {
+ (1)    if (key == null || value == null) throw new NullPointerException();      /* highlight-line */ 
+ (2)    int hash = spread(key.hashCode());  /* highlight-line */ 
+        int binCount = 0;
+ (3)    for (Node<K,V>[] tab = table;;) {  /* highlight-line */ 
+            Node<K,V> f; int n, i, fh; K fk; V fv;
+            
+ (4)        /* highlight-range{1-2} */ 
+            if (tab == null || (n = tab.length) == 0)
+                tab = initTable();
+                
+ (5)        /* highlight-range{1-3} */    
+            else if ((f = tabAt(tab, i = (n - 1) & hash)) == null) {
+                if (casTabAt(tab, i, null, new Node<K,V>(hash, key, value)))
+                    break;                   // no lock when adding to empty bin
+            }
+            
+ (6)        /* highlight-range{1-2} */ 
+            else if ((fh = f.hash) == MOVED)
+                tab = helpTransfer(tab, f);
+            else if (onlyIfAbsent // check first node without acquiring lock
+                     && fh == hash
+                     && ((fk = f.key) == key || (fk != null && key.equals(fk)))
+                     && (fv = f.val) != null)
+                return fv;
+            else {
+                V oldVal = null;
+ (7)           synchronized (f) { /* highlight-line */ 
+                    if (tabAt(tab, i) == f) {
+                        if (fh >= 0) {
+                            binCount = 1;
+                            for (Node<K,V> e = f;; ++binCount) {
+                                K ek;
+                                if (e.hash == hash &&
+                                    ((ek = e.key) == key ||
+                                     (ek != null && key.equals(ek)))) {
+                                    oldVal = e.val;
+                                    if (!onlyIfAbsent)
+                                        e.val = value;
+                                    break;
+                                }
+                                Node<K,V> pred = e;
+                                if ((e = e.next) == null) {
+                                    pred.next = new Node<K,V>(hash, key, value);
+                                    break;
+                                }
+                            }
+                        }
+                        else if (f instanceof TreeBin) {
+                            Node<K,V> p;
+                            binCount = 2;
+                            if ((p = ((TreeBin<K,V>)f).putTreeVal(hash, key,
+                                                           value)) != null) {
+                                oldVal = p.val;
+                                if (!onlyIfAbsent)
+                                    p.val = value;
+                            }
+                        }
+                        else if (f instanceof ReservationNode)
+                            throw new IllegalStateException("Recursive update");
+                    }
+                }
+                if (binCount != 0) {
+                    if (binCount >= TREEIFY_THRESHOLD)
+                        treeifyBin(tab, i);
+                    if (oldVal != null)
+                        return oldVal;
+                    break;
+                }
+            }
+        }
+ (8)    addCount(1L, binCount);  /* highlight-line */ 
+        return null;
+    }
 
 ```
 
-[java-unsafe](https://www.baeldung.com/java-unsafe)  
+<br/>
+
+<span class='red_font'>(1)</span> `if (key == null || value == null) throw new NullPointerException(); `
+> HashMap과 다르게 null을 허용하지 않습니다
 
 <br/>
 
+<span class='red_font'>(2)</span> `int hash = spread(key.hashCode());`
+> spread()는 보조해시 함수로 이전에 본 HashMap과 크게 다르지 않습니다
+
+<br/>
+
+<span class='red_font'>(3)</span> `for (Node<K,V>[] tab = table;;)`
+> ConcurrentHashMap는 값 삽입시 thread끼리 충돌이 날수 있기 때문에 재시도를 위해 for문으로 시작됩니다
+
+<br/>
+
+<span class='red_font'>(4)</span> ` if (tab == null || (n = tab.length) == 0)`
+> buckets의 초기 세팅이 필요한경우 buckets을 생성합니다  
+> HashMap과 똑같인 DEFAULT\_CAPACITY = 16의 LOAD\_FACTOR = 0.75f을 기본값으로 가집니다
+
+<br/>
+
+<span class='red_font'>(5)</span> ` else if ((f = tabAt(tab, i = (n - 1) & hash)) == null)`
+> `tabAt`을 통해 Node가 처음 삽입되는 값인지 확인합니다  
+> `casTabAt`통해 값을 삽입하며 삽입시점에 buckets의 값이 null인지 확인하여 성공시 true, 실패시 false를 리턴합니다   
+> 삽입에 실패하면 <span class='red_font'>(3)</span> for문으로 돌아가 재시도 합니다
+
+<br/>
+
+<span class='red_font'>(6)</span> `else if ((fh = f.hash) == MOVED)`
+> hash값이 MOVED(-1)인지를 검사합니다(ForwardingNode의 hash값)  
+> helpTransfer()를 실행하여 리사이즈를 진행합니다
+
+
+<br/>
+
+<span class='red_font'>(7)</span> `synchronized (f)`
+> 탐색시에 synchronized를 사용하여 해당 Node의 LinkedList, Tree의 대한 thread-safe를 보장합니다
+
+
+<span class='red_font'>(8)</span> `addCount(1L, binCount);`
+> size를 측정하여 transfer로 리사이즈를 진행하고 ForwardingNode을 할당합니다
+
+<br/>
+
+
 ---
+
+<br/>
 
 ## Hash Collision(해시 충돌)
 
+다음은 해시들의 충돌을 해결하는 방법을 2가지 제시합니다
+
+<br/>
+
 ###Separate Chaining(분리 연결법)
+가장 널리 사용되고 있는 분리 연결법입니다
 
 ![separate-chaining](./images/separate-chaining.png)  
 <span class='img_caption'>Source : [Hash Table Wiki](https://en.wikipedia.org/wiki/Hash_table) </span>
 
-###Open Addressing(개방 주소법)
+새로 값을 삽입할때 해시의 buckets의 같은 공간에 이미 값이 존재하고  
+해당 key와 value의 값이 삽입되야하는 값과 다르다면 값을 저장하는 모델(Node)을 만들고  
+Linked List, Tree등의 자료구조를 사용하여 연결하여 삽입하는 방법입니다
 
+<br/>
+
+###Open Addressing(개방 주소법)
+개방 주소법은 buckets을 그대로 사용합니다  
 ![open-addressing](./images/open-addressing.png)  
 <span class='img_caption'>Source : [Hash Table Wiki](https://en.wikipedia.org/wiki/Hash_table) </span>
+
+해시의 buckets의 같은 공간에 이미 값이 존재한다면 새로운 주소로 buckets에 값을 할당하는 방식입니다  
+새로운 주소를 구하는 방법은 여러 방식이 존재합니다
+> 1. 고정폭을 가지고 삽입하고 값을 이동시킨다
+> 2. 처음엔 1만큰 이후에 2^2, 3^2 만큼 옮기는 방식
+> 3. 해시값을 한번더 해싱하여 새로운 주소로 값을 삽입합니다
+
+<br/>
+
+**서로의 방식에는 장단점이 있습니다**
+
+Separate Chaining의 경우 buckets자체의 확장이 필요없고 삽입과 삭제가 손쉽게 가능합니다  
+단점으로는 <span class='red_font'>List 및 Tree의 길이가 늘어날수록 탐색의 효율이 떨어지게</span> 됩니다
+
+<br/>
+
+Open Addressing이 추가 메모리 할당 없이 buckets자체를 사용하게 됩니다   
+단점으로 <span class='red_font'>삽입과 탐색시 효율이 떨어지며 삭제시 빈공간의 대한 buckets 재정리 작업</span>이 필요합니다
+
 
 ---
 
@@ -492,7 +684,9 @@ HashTable의 충돌발생시 해결법을 알고 있느냐는 질문을 받았�
 
 이를 계기로 명확하게 구조를 보고 정리하는 시간을 갖게 되었습니다 👋
 
----  
+---
+
+<br/>
 
 ## 관련 참고
 
