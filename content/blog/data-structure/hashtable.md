@@ -87,7 +87,7 @@ overflow가 되고 0만 가득차게 될 수 있기 때문에 홀수와 소수�
 이렇게 간단하게 구현된 해시값이 겹치지 않을까요!? 👉 **물론 겹칠 수 있습니다**  
 이전에는 보다 복잡한 보조해시를 썼지만 hashCode() 자체의 알고리즘 개선과 효율성 측면에서 간단하게 계산합니다  
 법그래서 별도의 **Separate Chaining(분리 연결법), Open Addressing(개방 주소)**
-으로 [해시 충돌](https://renuevo.github.io/data-structure/map-interface/#hash-collision해시-충돌)을 예방합니다
+으로 [해시 충돌](https://renuevo.github.io/data-structure/hashtable/#hash-collision해시-충돌)을 예방합니다
 
 <br/>
 <br/>
