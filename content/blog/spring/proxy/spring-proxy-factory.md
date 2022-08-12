@@ -12,3 +12,4 @@ category: 'Spring'
 ## 관련 참고
 
 [로키님 블로그](https://yejun-the-developer.tistory.com/7)  
+[JiwonDev님 블로그](https://jiwondev.tistory.com/152)  
