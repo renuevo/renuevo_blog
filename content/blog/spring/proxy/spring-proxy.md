@@ -232,7 +232,9 @@ INFO com.github.renuevo.proxy.domain.jdk.JdkProxyServiceImpl - I'm C
 
 ## 관련 참고
 
-[baeldung](https://www.baeldung.com/spring-aop-vs-aspectj)
+[baeldung cglib](https://www.baeldung.com/cglib)
+[baeldung spring-aop-vs-aspectj](https://www.baeldung.com/spring-aop-vs-aspectj)
+[suhongkim98님 블로그](https://velog.io/@suhongkim98/JDK-Dynamic-Proxy%EC%99%80-CGLib)
 [Moon님 블로그](https://gmoon92.github.io/spring/aop/2019/04/20/jdk-dynamic-proxy-and-cglib.html)  
 [keep going님 블로그](https://velog.io/@hanblueblue/Spring-Proxy-1-Java-Dynamic-Proxy-vs.-CGLIB)  
 [JiwonDev님 블로그](https://jiwondev.tistory.com/151)  

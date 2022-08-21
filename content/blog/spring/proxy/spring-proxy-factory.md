@@ -13,3 +13,4 @@ category: 'Spring'
 
 [로키님 블로그](https://yejun-the-developer.tistory.com/7)  
 [JiwonDev님 블로그](https://jiwondev.tistory.com/152)  
+[Moon님 블로그](https://gmoon92.github.io/spring/aop/2019/02/23/spring-aop-proxy-bean.html)
