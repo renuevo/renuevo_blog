@@ -1,6 +1,6 @@
 ---
 title: "[Spring] Spring Proxy의 JDK Dynamic Proxy와 CGLIB"  
-date: 2022-08-12  
+date: 2022-08-25  
 category: 'Spring'
 ---
 
