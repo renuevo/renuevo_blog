@@ -7,9 +7,9 @@ lang: 'ko'
 # 🦆 My Profile
 
 <div style="text-align:center">
-<figure style="margin: 0 auto; max-width:200px; width: 80%;">
+<figure style="margin: 0 auto; max-width:350px; width: 80%;">
 
-![profile](../assets/profile.png)
+![profile](../assets/resume-profile.png)
 
 </figure> 
 
