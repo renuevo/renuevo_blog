@@ -112,9 +112,9 @@ public class Proxy implements java.io.Serializable {
 
     ......
 
-    public static Object newProxyInstance(ClassLoader loader,       //프록시를 만들 Class Loader
-                                          Class<?>[] interfaces,    //target interface
-                                          InvocationHandler h)      //InvocationHandler 구현체
+    public static Object newProxyInstance(ClassLoader loader,       -> 프록시를 만들 Class Loader
+                                          Class<?>[] interfaces,    -> target interface
+                                          InvocationHandler h)      -> InvocationHandler 구현체
 
     ......
 }
@@ -124,9 +124,9 @@ public class Proxy implements java.io.Serializable {
 public interface InvocationHandler {
 
     public Object invoke(
-                            Object proxy,   //프록시 객체 (this)
-                            Method method,  //호출된 메서드 
-                            Object[] args   //메서드의 매개변수
+                            Object proxy,   -> 프록시 객체 (this)
+                            Method method,  -> 호출된 메서드 
+                            Object[] args   -> 메서드의 매개변수
                         ) throws Throwable;
 }
 
@@ -203,7 +203,7 @@ internal class TestInvocationHandler constructor(jdkProxyService: JdkProxyServic
             else -> log.info { "TestInvocationHandler 지나갑니다" }
         }
 
-        return method.invoke(target, *(args ?: arrayOfNulls(0)))    //실제 target 호출
+        return method.invoke(target, *(args ?: arrayOfNulls(0)))    -> 실제 target 호출
     }
 
 }
@@ -279,8 +279,8 @@ public class Enhancer extends AbstractClassGenerator {
 
     public static Object create(Class superclass, Callback callback) {
 		Enhancer e = new Enhancer();
-		e.setSuperclass(superclass);      //프록시를 만들 Class
-		e.setCallback(callback);          //MethodInterceptor 구현체
+		e.setSuperclass(superclass);      -> 프록시를 만들 Class
+		e.setCallback(callback);          -> MethodInterceptor 구현체
 		return e.create();
 	}
 
