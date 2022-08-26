@@ -4,11 +4,11 @@ date: 2022-08-25
 category: 'Spring'
 ---
 
-## Spring AOP에서 사용하는 Proxy
+## Spring AOP에서 사용하는 Proxy  
 
 **스프링에서 사용하는 프록시에 대해 알아볼 시간입니다**
 
-총 3편으로 나누어서 구성하였습니다
+총 3편으로 나누어서 구성하였습니다  
 
 1. [Spring Proxy의 JDK Dynamic Proxy와 CGLIB](https://renuevo.github.io/spring/proxy/spring-proxy)  
 > a. [Proxy 살펴보기](https://renuevo.github.io/spring/proxy/spring-proxy/#proxy-살펴보기)    
@@ -17,7 +17,7 @@ category: 'Spring'
 2. [Spring의 프록시 생성 (ProxyBeanFactory)]() :construction: 작성중
 3. [Spring Proxy의 빈 후처리기(BeanPostProcessor)]() :construction: 작성중
 
-## Proxy 살펴보기
+## Proxy 살펴보기  
 
 일반적으로 스프링에서 말하는 기능적 프록시는 2가지 패턴의 기능 역할을 합니다  
 
@@ -34,19 +34,19 @@ category: 'Spring'
 
 프록시는 `OCP(개방-폐쇄 원칙)`을 지키는 아주 좋은 수단입니다  
 클라이언트가 서비스 호출시 프록시를 통해 실제 target(서비스구현체)을 호출하도록 만듭니다  
-중간에서 프록시는 **부가기능 or 접근제어** 등의 역할을 수행합니다
+중간에서 프록시는 **부가기능 or 접근제어** 등의 역할을 수행합니다  
 
 일반적으로 많이 사용하는 `@Transactional` 같은 애들이 이러한 프록시를 통해 구현되어 있으며  
-이러한 트릭을 통해 개발자는 서비스 구현에만 더욱 집중할 수 있도록 만들어 줍니다
+이러한 트릭을 통해 개발자는 서비스 구현에만 더욱 집중할 수 있도록 만들어 줍니다  
 
 <br/>
 <br/>
 
-**👎하지만 프록시는 <span class='red_font'>단점</span>도 가지고 있습니다**
+**👎하지만 프록시는 <span class='red_font'>단점</span>도 가지고 있습니다**  
 
-1. target(서비스)의 개수만큼 프록시가 생성되어야 한다
-2. 같은 기능의 경우 코드 중복이 일어난다
-3. 프록시를 사용하지 않는 메서드도 래핑처리되어 프록시를 통해 target에 도달한다
+1. target(서비스)의 개수만큼 프록시가 생성되어야 한다  
+2. 같은 기능의 경우 코드 중복이 일어난다  
+3. 프록시를 사용하지 않는 메서드도 래핑처리되어 프록시를 통해 target에 도달한다  
 
 <br/>
 
@@ -56,7 +56,7 @@ category: 'Spring'
 
 <br/>
 
-그럼 다음으로 Spring AOP가 내부에서 동적으로 프록시를 생성할때 사용되는 `JDK Dynamic Proxy`와 `CGLIB`를 알아보겠습니다
+그럼 다음으로 Spring AOP가 내부에서 동적으로 프록시를 생성할때 사용되는 `JDK Dynamic Proxy`와 `CGLIB`를 알아보겠습니다  
 
 <br/>
 
@@ -64,13 +64,13 @@ category: 'Spring'
 
 예전(🦷)에는 꼭 스프링 3.0에서는 @Service를 만들기전에 interface를 생성해야 한다고 배웠었습니다  
 그 이유는 그때 당시에 스프링에서는 기본적으로 사용되던 프록시가 `JDK Dynamic Proxy`이기 때문입니다  
-그럼 JDK Dynamic Proxy의 구조를 살펴 보며 왜 interface가 필요한지 알아보도록 하겠습니다
+그럼 JDK Dynamic Proxy의 구조를 살펴 보며 왜 interface가 필요한지 알아보도록 하겠습니다  
 
 <br/>
 
-### JDK Dynamic Proxy 구조 살펴보기
+### JDK Dynamic Proxy 구조 살펴보기  
 
-JDK Dynamic Proxy의 내부 구성부터 알아보겠습니다
+JDK Dynamic Proxy의 내부 구성부터 알아보겠습니다  
 
 
 
@@ -81,27 +81,27 @@ JDK Dynamic Proxy의 내부 구성부터 알아보겠습니다
 
 실제적으로 서비스구현체와 같은 interface를 상속받아서 프록시가 구성됩니다  
 같은 interface로 구현되면서 호출에 대한 메서드를 래핑해서 구현하는게 가능합니다  
-이 과정에서 메서드정보등이 사용되면서 자바내의 리플렉션을 사용합니다
+이 과정에서 메서드정보등이 사용되면서 자바내의 리플렉션을 사용합니다  
 
 <br/>
 
-**🏷️위의 구조로 JDK Dynamic Proxy의 특징을 살펴볼수 있습니다**
+**🏷️위의 구조로 JDK Dynamic Proxy의 특징을 살펴볼수 있습니다**  
 
-1. public 메서드만 proxy가 작동한다
-2. 내부끼리의 메서드 호출로는 proxy를 타지 않기 때문에 aop가 동작하지 않는다
-3. 리플렉션을 사용하면서 오버헤드가 발생한다
-4. interface가 필수적으로 필요하다
+1. public 메서드만 proxy가 작동한다  
+2. 내부끼리의 메서드 호출로는 proxy를 타지 않기 때문에 aop가 동작하지 않는다  
+3. 리플렉션을 사용하면서 오버헤드가 발생한다  
+4. interface가 필수적으로 필요하다  
 
 <br/>
 <br/>
 
-### JDK Dynamic Proxy 소스로 확인하기
+### JDK Dynamic Proxy 소스로 확인하기  
 
 Proxy생성을 위해 java에서는 리플랙션 패키지내의 Proxy 클래스가 존재합니다  
 내부적으로 target의 대한 메서드 호출을 위해 `InvocationHandler`만 구현하여 간단하게 프록시 생성이 가능합니다  
 
 핵심 클래스는 아래 두개입니다  
->1. Proxy
+>1. Proxy  
 >2. InvocationHandler  
 
 ```java
@@ -247,7 +247,7 @@ CGLIB은 기본 클래스를 상속받아서 Proxy를 구현합니다
 
 <br/>
 
-**🏷️위의 구조로 CGLIB Proxy의 특징을 살펴볼수 있습니다**
+**🏷️위의 구조로 CGLIB Proxy의 특징을 살펴볼수 있습니다**  
 
 1. public, protected 메서드에서 proxy가 작동한다    
 2. 내부끼리의 메서드 호출로는 proxy를 타지 않기 때문에 aop가 동작하지 않는다  
@@ -263,8 +263,8 @@ CGLIB Proxy구현을 위해서는 CGLIB 라이브러리가 필요합니다 (Spri
 CGLIB에서도 JDK Proxy와 같이 CGLIB 패키지내의 `InvocationHandler`를 구현하여 프록시 생성이 가능합니다  
 하지만 일반적으로 사용되고 있는 `MethodInterceptor`를 구현하여 프록시를 생성해 보겠습니다  
 
-핵심 클래스는 아래 두개입니다
->1. Enhancer
+핵심 클래스는 아래 두개입니다  
+>1. Enhancer  
 >2. MethodInterceptor  
 <span class='red_font'>이곳에서 사용하는 MethodInterceptor는 ProxyFactoryBean에서 사용하는 것과는 다릅니다!!</span>  
 
@@ -435,7 +435,7 @@ INFO com.github.renuevo.proxy.TestCglibMethodInterceptor - interceptor number is
 INFO com.github.renuevo.proxy.domain.cglib.CglibService - I'm C
 
 ```
-결과에서 프록시가 잘 호출되는 것을 확인할 수 있습니다
+결과에서 프록시가 잘 호출되는 것을 확인할 수 있습니다  
 
 <br/>
 
