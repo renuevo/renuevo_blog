@@ -14,7 +14,7 @@ category: 'Spring'
 > a. [Proxy 살펴보기](https://renuevo.github.io/spring/proxy/spring-proxy/#proxy-살펴보기)    
 > b. [JDK Dynamic Proxy](https://renuevo.github.io/spring/proxy/spring-proxy/#jdk-dynamic-proxy)   
 > c. [CGLIB](https://renuevo.github.io/spring/proxy/spring-proxy/#cglib)  
-2. [Spring의 프록시 생성 (ProxyBeanFactory)]() :construction: 작성중
+2. [Spring의 프록시 생성 (ProxyBeanFactory)](https://renuevo.github.io/spring/proxy/spring-proxy-factory/)
 3. [Spring Proxy의 빈 후처리기(BeanPostProcessor)]() :construction: 작성중
 
 ## Proxy 살펴보기  
