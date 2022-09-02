@@ -9,7 +9,7 @@ category: 'Data Structure'
 편리하게 사용하고 있는 Map관련 내부구조를 다시 보고 정리하면서 확인해 보려고 합니다
 
 
-##간단히 비교해 보기
+## 간단히 비교해 보기
 
 |                 | HashMap       | HashTable             | ConcurrentHashMap |
 |-----------------|---------------|-----------------------|-------------------|
@@ -19,9 +19,9 @@ category: 'Data Structure'
 
 <br/>
 
-##HashMap (해시맵)
+## HashMap (해시맵)
 
-###Hash 알고리즘  
+### Hash 알고리즘  
 먼저 key를 저장하는 hash와 관련된 내용부터 살펴 보겠습니다
 
 ```java
@@ -92,7 +92,7 @@ overflow가 되고 0만 가득차게 될 수 있기 때문에 홀수와 소수�
 <br/>
 <br/>
 
-###HashMap의 내부 구조
+### HashMap의 내부 구조
 
 저장되는 데이터 구조를 살펴보겠습니다
 
@@ -281,7 +281,7 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
 
 <br/>
 
-##HashTable (해시테이블)  
+## HashTable (해시테이블)  
 다음으로 알아볼 것은 HashMap 이전에 사용된 HashTable 입니다  
 그래서 기능적으로 많이 닮아 있으므로 다른 부분만을 빠르게 살펴 보겠습니다
 
@@ -294,7 +294,7 @@ int hash = key.hashCode();
 
 <br/>
 
-###HashTable의 내부 구조
+### HashTable의 내부 구조
 
 저장되는 데이터 구조를 살펴보겠습니다
 
@@ -445,7 +445,7 @@ HashMap과 다르게 간단한 put 구조를 가지고 있습니다
 
 <br/>
 
-##ConcurrentHashMap(병행해시맵)
+## ConcurrentHashMap(병행해시맵)
 다음으로 알아볼 것은 ConcurrentHashMap 입니다  
 ConcurrentHashMap의 핵심은 Unsafe를 사용한 <span class='red_font'>thread-safe</span>를 지원한다는 것입니다
 
@@ -647,7 +647,7 @@ final V putVal(K key, V value, boolean onlyIfAbsent) {
 
 <br/>
 
-###Separate Chaining(분리 연결법)
+### Separate Chaining(분리 연결법)
 가장 널리 사용되고 있는 분리 연결법입니다
 
 ![separate-chaining](./images/separate-chaining.png)  
@@ -659,7 +659,7 @@ Linked List, Tree등의 자료구조를 사용하여 연결하여 삽입하는 �
 
 <br/>
 
-###Open Addressing(개방 주소법)
+### Open Addressing(개방 주소법)
 개방 주소법은 buckets을 그대로 사용합니다  
 ![open-addressing](./images/open-addressing.png)  
 <span class='img_caption'>Source : [Hash Table Wiki](https://en.wikipedia.org/wiki/Hash_table) </span>
