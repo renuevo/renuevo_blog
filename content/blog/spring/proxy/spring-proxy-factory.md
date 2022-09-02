@@ -1,6 +1,6 @@
 ---
 title: "[Spring] Spring의 프록시 생성 (ProxyBeanFactory)"  
-date: 2022-08-12  
+date: 2022-09-03  
 category: 'Spring'  
 ---
 
@@ -14,13 +14,15 @@ category: 'Spring'
 > a. [Proxy 살펴보기](https://renuevo.github.io/spring/proxy/spring-proxy/#proxy-살펴보기)    
 > b. [JDK Dynamic Proxy](https://renuevo.github.io/spring/proxy/spring-proxy/#jdk-dynamic-proxy)   
 > c. [CGLIB](https://renuevo.github.io/spring/proxy/spring-proxy/#cglib)  
-2. [Spring의 프록시 생성 (ProxyBeanFactory)]() :construction: 작성중  
+2. [Spring의 프록시 생성 (ProxyBeanFactory)]()
+> a. [FactoryBean](https://renuevo.github.io/spring/proxy/spring-proxy/#factory-bean)
+> b. [ProxyBeanFactory]()
 3. [Spring Proxy의 빈 후처리기(BeanPostProcessor)]() :construction: 작성중  
 
 
 ## Proxy Factory 살펴보기  
 
-이전 포스팅에서 프록시를 직접생성해서 관리할때의 문제점을 마지막으로 살펴보았습니다  
+이전 포스팅에서 프록시를 직접 생성해서 관리할때의 문제점을 마지막으로 살펴보았습니다  
 1. 프록시가 중첩되면 코드가 복잡해진다  
 2. target별로 프록시를 생성하는 코드 및 관리 포인트가 증가한다  
 3. 사용하지 않는 메서드도 프록시에 구현해서 서빙해야 한다  
@@ -30,7 +32,7 @@ category: 'Spring'
 
 <br/>
 
-![proxy factory](./images/proxy-factory.png)  
+![proxy factory](./images/proxy-factory.png)
 <span class='img_caption'>Proxy Factory</span>
 
 프록시 팩토리(Proxy Factory)는 스프링의 동적 프록시를 통합하여 생성하는 기능을 제공합니다  
@@ -40,9 +42,11 @@ category: 'Spring'
 ---
 
 ## Factory Bean
-먼저 ProxyFactoryBean을 알기전에 FactoryBean부터 살펴보겠습니다  
+스프링이 사용하는 일반적인 객체는 new 연산자로 간당히 생성할 수 없을때가 있습니다  
+DI(의존성 주입) 및 Bean으로 관리가 필요할 때가 그 이유입니다  
+FactoryBean은 빈을 생성하는 팩토리역할을 제공하는 Interface입니다  
 
-```kotlin
+```kotlinM
 
 public interface FactoryBean<T> {
 
@@ -59,12 +63,54 @@ public interface FactoryBean<T> {
 }
 
 ```
+**FactoryBean을 통해 객체를 DI 및 Bean으로 사용할 수 있게 되며 IoC에 맞게 구현이 가능하게 합니다**  
 
-스프링이 사용하는 일반적인 객체는 new 연산자로 간당히 생성할 수 없을때가 있습니다  
-DI(의존성 주입) 및 Bean으로 관리가 필요할 때가 그 이유입니다  
-FactoryBean은 빈을 생성하는 팩토리역할을 제공하는 Interface입니다  
+<br/>
 
-**FactoryBean을 통해 객체를 DI 및 Bean으로 사용할 수 있게 되며 IoC에 맞게 구현이 가능해 집니다**  
+
+```kotlin
+
+@Configuration
+class FactoryBeanConfig {
+
+    @Bean
+    fun jdkProxyService(): TestFactoryBean = TestFactoryBean(
+            interfaceType = JdkProxyService::class.java,
+            target = JdkProxyServiceImpl()
+        )
+
+}
+
+class TestFactoryBean(
+    private val interfaceType: Class<*>,
+    private val target: Any
+) : FactoryBean<Any> {
+
+    override fun getObject(): Any = Proxy.newProxyInstance(
+        interfaceType.classLoader,
+        arrayOf(interfaceType),
+        FactoryBeanInvocationHandler(target)
+    )
+
+    override fun getObjectType(): Class<*> = interfaceType
+
+}
+
+
+class FactoryBeanInvocationHandler(private val target: Any) : InvocationHandler {
+
+    private val log = KotlinLogging.logger { }
+
+    override fun invoke(proxy: Any, method: Method, args: Array<out Any>?): Any? {
+        log.info { "Factory Bean Invocation Handler" }
+        return method.invoke(target, *(args ?: arrayOfNulls(0)))    //실제 target 호출
+    }
+
+}
+
+
+```
+
 
 
 ```kotlin 
@@ -119,7 +165,6 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 		
 }
 
-
 ```
 
 ---
@@ -130,6 +175,6 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 
 [로키님 블로그](https://yejun-the-developer.tistory.com/7)  
 [JiwonDev님 블로그](https://jiwondev.tistory.com/152)  
-[Moon님 블로그](https://gmoon92.github.io/spring/aop/2019/02/23/spring-aop-proxy-bean.html)
-[다비드박의 개발이야기 블로그](https://davidpark20.tistory.com/48)
-[다비드박의 개발이야기 블로그](https://davidpark20.tistory.com/49)
+[Moon님 블로그](https://gmoon92.github.io/spring/aop/2019/02/23/spring-aop-proxy-bean.html)  
+[다비드박의 개발이야기 블로그](https://davidpark20.tistory.com/48)  
+[다비드박의 개발이야기 블로그](https://davidpark20.tistory.com/49)  
