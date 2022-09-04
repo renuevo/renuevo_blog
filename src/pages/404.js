@@ -1,25 +1,27 @@
-import React from 'react'
-import { graphql } from 'gatsby'
+import React from "react";
+import { graphql } from "gatsby";
 
-import { Layout } from '../layout'
-import { Head } from '../components/head'
+import { Layout } from "../layout";
+import { Head } from "../components/head";
 
 class NotFoundPage extends React.Component {
   render() {
-    const { data } = this.props
-    const siteTitle = data.site.siteMetadata.title
+    const { data } = this.props;
+    const siteTitle = data.site.siteMetadata.title;
+
+    console.log(data);
 
     return (
       <Layout location={this.props.location} title={siteTitle}>
         <Head title="404: Not Found" />
         <h1>Not Found</h1>
-        <p>You just hit a route that doesn&#39;t exist... the sadness.</p>
+        <p>You just hit a route that doesn&#39;t exist... 😥</p>
       </Layout>
-    )
+    );
   }
 }
 
-export default NotFoundPage
+export default NotFoundPage;
 
 export const pageQuery = graphql`
   query {
@@ -29,4 +31,4 @@ export const pageQuery = graphql`
       }
     }
   }
-`
+`;
