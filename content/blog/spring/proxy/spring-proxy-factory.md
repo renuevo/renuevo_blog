@@ -180,14 +180,26 @@ INFO com.github.renuevo.proxy.domain.jdk.JdkProxyServiceImpl - I'm C
 <br/>
 
 ### FactoryBean으로 Proxy구성시 한계점  
+앞서 FactoryBean을 활용해 스프링의 프록시 팩토리를 구현해 보았습니다  
+하지만 이러한 구현에도 <span class='red_font'>한계점</span>이 존재합니다  
+
+1. **InvocationHandler 같은 부가기능을 적용할 타겟의 대한 관리**  
+    > 부가 기능을 기준으로 여러 타겟에 적용할 때의 어려움이 들어남  
+
+2. **타겟 기준으로 InvocationHandler 같은 부가기능을 여러게 등록**  
+    > 타겟을 기준으로 InvocationHandler을 여러게 등록하려고 하면 FactoryBean을 계속해서 생성해 주어야함  
+
+<br/>
+
+결국 이러한 한계점으로 OCP(개방폐쇄 원칙)을 지키며 개발하기 힘들어 집니다  
+프록시 Bean 설정의 대한 중복코드와 자유로운 확장이 어려워 지는 것입니다  
 
 
-
-
+<br/>
 
 
 ## ProxyFactoryBean
-
+이러한 문제점을 해결하기 위해서 스프링에서는 프록시 Bean을 생성해 주는 `ProxyFactoryBean`을 제공합니다  
 
 ```kotlin 
 
