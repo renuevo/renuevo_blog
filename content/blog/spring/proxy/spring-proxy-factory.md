@@ -209,7 +209,7 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 		......
 		
 	public Object getObject() throws BeansException {
-		initializeAdvisorChain();
+		initializeAdvisorChain();  <- 부가기능 체인     /* highlight-line */
 		if (isSingleton()) {
 			return getSingletonInstance();
 		}
@@ -258,6 +258,15 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 ---
 
 <br/>
+
+advisor : advice + pointcut  
+advice : 타겟에 적용할 부가기능  
+pointcut : 부가기능 적용대상을 지정  
+
+
+<br/>
+
+![ProxyBeanFactory Relation](./images/ProxyBeanFactory-relation.png)  
 
 ## 관련 참고
 
