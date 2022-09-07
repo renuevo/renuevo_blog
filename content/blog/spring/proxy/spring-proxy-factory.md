@@ -1,6 +1,6 @@
 ---
 title: "[Spring] Spring의 프록시 생성 (ProxyBeanFactory)"  
-date: 2022-09-03  
+date: 2022-09-08  
 category: 'Spring'  
 ---
 
@@ -15,7 +15,7 @@ category: 'Spring'
 > b. [JDK Dynamic Proxy](https://renuevo.github.io/spring/proxy/spring-proxy/#jdk-dynamic-proxy)   
 > c. [CGLIB](https://renuevo.github.io/spring/proxy/spring-proxy/#cglib)  
 2. [Spring의 프록시 생성 (ProxyBeanFactory)]()
-> a. [FactoryBean](https://renuevo.github.io/spring/proxy/spring-proxy/#factory-bean)
+> a. [FactoryBean](https://renuevo.github.io/spring/proxy/spring-proxy/#factory-bean)  
 > b. [ProxyBeanFactory]()
 3. [Spring Proxy의 빈 후처리기(BeanPostProcessor)]() :construction: 작성중  
 
@@ -35,9 +35,40 @@ category: 'Spring'
 ![proxy factory](./images/proxy-factory.png)
 <span class='img_caption'>Proxy Factory</span>
 
-프록시 팩토리(Proxy Factory)는 스프링의 동적 프록시를 통합하여 생성하는 기능을 제공합니다  
-인터페이스의 유무에 따라서 JDK, CGLIB 프록시를 선택하여 생성해 줍니다  
+**프록시 팩토리(Proxy Factory)는 스프링의 동적 프록시를 통합하여 생성하는 기능을 제공합니다**  
 이를 통해 생성 방법을 하나로 통일하여 코드 중복과 관리포인트를 줄일 수 있습니다  
+인터페이스의 유무에 따라서 JDK, CGLIB 프록시를 선택하여 생성해 줍니다  
+
+```kotlin
+
+@SpringBootTest
+internal class SpringProxyBeanFactoryTest(
+    private val factoryJdkProxyService: FactoryJdkProxyService,   <- 인터페이스
+    private val factoryCglibService: FactoryCglibService          <- 서비스객체
+) : ShouldSpec({
+
+    val log = KotlinLogging.logger { }
+
+    should("Factory Proxy Test") {
+        log.info { factoryJdkProxyService.javaClass.toString() }  <- JDK 프록시
+        log.info { factoryCglibService.javaClass.toString() }     <- CGLIB 프록시
+    }
+
+})
+
+
+```
+
+```text
+
+INFO 28088 --- [pool-1-thread-1] c.g.r.proxy.SpringProxyBeanFactoryTest   : class com.sun.proxy.$Proxy60
+INFO 28088 --- [pool-1-thread-1] c.g.r.proxy.SpringProxyBeanFactoryTest   : class com.github.renuevo.proxy.domain.factory.FactoryCglibService$$EnhancerBySpringCGLIB$$236a53fd
+
+```
+
+<br/>
+
+그럼 스프링에서 내부적으로 사용하는 ProxyFactory의 대해 알아보도록 하겠습니다  
 
 <br/>
 
@@ -259,14 +290,70 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 
 <br/>
 
-advisor : advice + pointcut  
-advice : 타겟에 적용할 부가기능  
-pointcut : 부가기능 적용대상을 지정  
+`FactoryBean<Object>`을 상속받고 있고 이전 임시로 구현해본 ProxyFactory와 같이 getObject()를 통해 프록시 객체를 리턴합니다  
 
+<br/>
+
+스프링에서 이러한 프록시에 대한 부가기능을 적용하기 위해 3가지 용어가 등장합니다  
+AOP를 쓰다보면 자주 등장하는 용어인 `Advisor`, `Advice`, `Pointcut` 입니다  
+
+1. **Advisor : Advice(부가기능) + Pointcut(적용대상)**  
+2. **Advice** : 타겟에 적용할 부가기능  
+3. **Pointcut** : 부가기능 적용대상을 지정  
+
+프록시에는 `Advisor`와 `Adivce`를 등록할 수 있고 `initializeAdvisorChain()`을 통해 프록시의 부가기능이 적용됩니다  
 
 <br/>
 
 ![ProxyBeanFactory Relation](./images/ProxyBeanFactory-relation.png)  
+<span class='img_caption'>ProxyBeanFactory Dependency</span>  
+
+ProxyBeanFactory의 디펜던시를 보게되면 `AdvisedSupport`가 존재합니다  
+AdvisedSupport에서는 타겟과 부가기능(Advisor, Advice)를 등록하는 기능을 제공합니다  
+
+```kotlin
+
+public class AdvisedSupport extends ProxyConfig implements Advised {
+
+   ......
+   
+   @Override
+   public void setTarget(Object target) {
+      setTargetSource(new SingletonTargetSource(target));
+   }
+   
+   @Override
+   public void addAdvisor(Advisor advisor) {
+      int pos = this.advisors.size();
+      addAdvisor(pos, advisor);
+   }
+   
+   @Override
+   public void addAdvice(Advice advice) throws AopConfigException {
+      int pos = this.advisors.size();
+      addAdvice(pos, advice);
+   }
+   
+   ......
+
+}
+
+```
+결론적으로 pointcut, advice등을 별도로 구성하여 등록하는 구조가 되면서  
+부가기능을 독립적인 객체로 관리하며 사용할 수 있게 되었고 OCP 원칙에 맞게 구조가 갖추어 지게 되었습니다  
+
+<br/>
+
+그럼 간단한 코드를 통해 어떠한 구조가 된것 인지 확인해 보도록 하겠습니다  
+
+<br/>
+<br/>
+
+### 코드를 통해 ProxyFactoryBean 살펴보기 :point_right: [Code](https://github.com/renuevo/spring-boot-kotlin-in-action/tree/master/spring-boot-aop-proxy-in-action)
+
+
+![MethodInterceptor](./images/MethodInterceptor.png)  
+
 
 ## 관련 참고
 
