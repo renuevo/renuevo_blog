@@ -351,8 +351,47 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 
 ### 코드를 통해 ProxyFactoryBean 살펴보기 :point_right: [Code](https://github.com/renuevo/spring-boot-kotlin-in-action/tree/master/spring-boot-aop-proxy-in-action)
 
+먼저 구현해 줄것은 `MethodInterceptor`입니다  
+여기서 말씀드리는 MethodInterceptor는 앞서 프록시에서 구현했것과는 다른 인터페이스입니다  
+
+```java
+
+package org.aopalliance.intercept;
+
+@FunctionalInterface
+public interface MethodInterceptor extends Interceptor {
+	@Nullable
+	Object invoke(@Nonnull MethodInvocation invocation) throws Throwable;
+}
+
+
+---------------------------------------------------------------------------------------------------
+
+package org.springframework.cglib.proxy;
+
+public interface MethodInterceptor extends Callback {
+    Object intercept(Object var1, Method var2, Object[] var3, MethodProxy var4) throws Throwable;
+}
+
+
+```
+
+1. `org.springframework.cglib.proxy.MethodInterceptor`
+   > 프록시 구현에서 사용, Callback을 상속받는 인터페이스
+
+2. `org.aopalliance.intercept.MethodInterceptor`
+   > 스프링 Advice를 상속하는 인터페이스  
+
 
 ![MethodInterceptor](./images/MethodInterceptor.png)  
+<span class='img_caption'>MethodInterceptor</span>
+
+ProxyBeanFactory에서 사용하는 MethodInterceptor는 org.aopalliance.intercept 패키지의 인터페이스를 사용합니다  
+
+
+
+
+
 
 
 ## 관련 참고
