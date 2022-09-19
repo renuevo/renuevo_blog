@@ -349,7 +349,20 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 <br/>
 <br/>
 
-### 코드를 통해 ProxyFactoryBean 살펴보기 :point_right: [Code](https://github.com/renuevo/spring-boot-kotlin-in-action/tree/master/spring-boot-aop-proxy-in-action)
+### 코드를 통해 ProxyFactoryBean 살펴보기 :point_right: [Code](https://github.com/renuevo/spring-boot-kotlin-in-action/tree/master/spring-boot-aop-proxy-in-action)  
+
+**프록시의 구현은 순서는 4가지로 분류됩니다**  
+1. Pointcut으로 대상 선정  
+2. Advice를 통한 기능 구현  
+3. Advisor로 Pointcut과 Advice를 묶기  
+4. ProxyFactoryBean을 통한 Proxy 등록  
+
+이렇게 4개를 구현하게 되면 아래와 같은 flow를 통해 Proxy가 동작하게 됩니다  
+
+![AdvisedSupportProxy](./images/advised-support-proxy.png)
+<span class='img_caption'>Advised Support Proxy</span>
+
+<br/>
 
 먼저 구현해 줄것은 `MethodInterceptor`입니다  
 여기서 말씀드리는 MethodInterceptor는 앞서 프록시에서 구현했것과는 다른 인터페이스입니다  
@@ -376,17 +389,185 @@ public interface MethodInterceptor extends Callback {
 
 ```
 
-1. `org.springframework.cglib.proxy.MethodInterceptor`
-   > 프록시 구현에서 사용, Callback을 상속받는 인터페이스
+1. `org.springframework.cglib.proxy.MethodInterceptor`  
+   > 프록시 구현에서 사용, Callback을 상속받는 인터페이스  
 
-2. `org.aopalliance.intercept.MethodInterceptor`
+2. `org.aopalliance.intercept.MethodInterceptor`  
    > 스프링 Advice를 상속하는 인터페이스  
 
+<br/>
 
 ![MethodInterceptor](./images/MethodInterceptor.png)  
 <span class='img_caption'>MethodInterceptor</span>
 
-ProxyBeanFactory에서 사용하는 MethodInterceptor는 org.aopalliance.intercept 패키지의 인터페이스를 사용합니다  
+MethodInterceptor는 Adivce 인터페이스를 상속받고 있습니다  
+ProxyBeanFactory에서 사용하는 MethodInterceptor는 org.aopalliance.intercept 패키지의 인터페이스를 사용합니다   
+
+```kotlin
+
+class CustomAdvice : MethodInterceptor {
+
+    private val log = KotlinLogging.logger { }
+
+    override fun invoke(invocation: MethodInvocation): Any? {
+
+        log.info { "Proxy 부가기능" }
+        
+        return invocation.proceed()
+    }
+}
+
+```
+간단하게 MethodInterceptor의 기능으로 "Proxy 부가기능"이라고 출력하도록 작성하였습니다  
+
+<br/>
+
+
+```kotlin
+
+@Configuration
+class CustomAdvisorConfig {
+
+       @Bean
+ (1)   fun targetPointcut(): Pointcut = NameMatchMethodPointcut().apply { addMethodName("method*") }
+   
+   
+       @Bean
+ (2)   fun customAdvice(): Advice = CustomAdvice()
+   
+   
+       @Bean
+ (3)   fun customAdvisor(): Advisor = DefaultPointcutAdvisor(targetPointcut(), customAdvice())
+   
+   
+       @Bean
+ (4)   fun proxyFactoryBean() = ProxyFactoryBean().apply {
+            /* highlight-range{1-2} */
+           setTarget(ProxyFactoryBeanTarget())  -> Target Class 지정
+           setInterceptorNames("customAdvisor") -> 이름을 통한 Advisor 지정
+       }
+
+}
+
+class ProxyFactoryBeanTarget : FactoryCglibService()
+
+```
+
+<br/>
+
+<span class='red_font'>(1)</span> `Pointcut을 통한 적용대상 구현`  
+> 함수명이 이름이 "method"로 시작하는 메소드에 부가기능이 적용됩니다  
+
+<br/>
+
+
+<span class='red_font'>(2)</span> `Advice를 통한 부가기능 구현`  
+> 이전 MethodInterceptor를 상속받아 구현한 "Proxy 부가기능" 출력이 기능으로 들어갑니다  
+
+<br/>
+
+<span class='red_font'>(3)</span> `Advisor를 통한 적용대상과 기능 묶기`  
+> 위에서 선언된 Pointcut의 적용대상과 Advice의 기능을 묶어서 Proxy에 등록하도록 생성됩니다  
+
+<br/>
+
+<span class='red_font'>(4)</span> `ProxyFactoryBean을 통한 Proxy 생성`  
+> Target과 Adivsor를 등록하여 Target에 Proxy를 적용 시킵니다  
+
+
+
+<br/>
+
+
+```kotlin
+
+@SpringBootTest
+internal class SpringProxyBeanFactoryTest(
+    private val factoryJdkProxyService: FactoryJdkProxyService,
+    private val factoryCglibService: FactoryCglibService,
+    private val proxyFactoryBean: ProxyFactoryBeanTarget
+) : ShouldSpec({
+
+    val log = KotlinLogging.logger { }
+
+    context("Proxy Bean Factory Test") {
+
+        should("Factory Proxy Test") {
+            log.info { factoryJdkProxyService.javaClass.toString() }
+            log.info { factoryCglibService.javaClass.toString() }
+            log.info { proxyFactoryBean.javaClass.toString() }
+        }
+
+        should("Call Proxy Bean Factory Method") {
+            proxyFactoryBean.methodA()
+            proxyFactoryBean.methodB()
+            proxyFactoryBean.methodC()
+        }
+
+    }
+
+})
+
+
+```
+
+
+
+```kotlin
+
+@SpringBootTest
+internal class SpringProxyBeanFactoryTest(
+    private val customAdvisor: Advisor
+) : ShouldSpec({
+
+    val log = KotlinLogging.logger { }
+
+    context("Proxy Bean Factory Test") {
+
+        should("JDK Proxy Factory Test") {
+            val proxy = ProxyFactory(FactoryJdkProxyServiceImpl()).apply {
+                addAdvisor(customAdvisor)
+            }.proxy as FactoryJdkProxyService
+
+            log.info { proxy.javaClass.toString() }
+
+            proxy.methodA()
+            proxy.methodB()
+            proxy.methodC()
+        }
+
+        should("CGlib Proxy Factory Test") {
+            val proxy = ProxyFactory(ProxyFactoryBeanTarget()).apply {
+                isProxyTargetClass = true
+                addAdvisor(customAdvisor)
+            }.proxy as ProxyFactoryBeanTarget
+
+            log.info { proxy.javaClass.toString() }
+
+            proxy.methodA()
+            proxy.methodB()
+            proxy.methodC()
+        }
+
+        should("Interface Target To CGLIB Proxy Test") {
+            val proxy = ProxyFactory(FactoryJdkProxyServiceImpl()).apply {
+                isProxyTargetClass = true
+                addAdvisor(customAdvisor)
+            }.proxy as FactoryJdkProxyService
+
+            log.info { proxy.javaClass.toString() }
+
+            proxy.methodA()
+            proxy.methodB()
+            proxy.methodC()
+        }
+
+    }
+
+})
+
+
+```
 
 
 
