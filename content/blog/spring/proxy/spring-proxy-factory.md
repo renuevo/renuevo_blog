@@ -422,6 +422,7 @@ class CustomAdvice : MethodInterceptor {
 
 <br/>
 
+이제 차례대로 프록시에서 사용할 빈으로 등록해 줍니다  
 
 ```kotlin
 
@@ -475,10 +476,14 @@ class ProxyFactoryBeanTarget : FactoryCglibService()
 > Target과 Adivsor를 등록하여 Target에 Proxy를 적용 시킵니다  
 
 
+<br/>
+
+인터페이스를 활용하여 각각의 역할을 분리하고 기능을 정의하므로 OCP원칙의 맞는 개발을 할 수 있습니다  
+이렇게 인터페이스로 결합도를 낮추고 객체로 기능을 정의하고 포함시켜 코드를 재사용하는 방법을 **합성(Composition)**이라고 합니다  
 
 <br/>
 
-
+<span class='code_header'>프록시 확인 코드</span>
 ```kotlin
 
 @SpringBootTest
@@ -508,6 +513,24 @@ internal class SpringProxyBeanFactoryTest(
 
 })
 
+
+```
+
+```text
+
+### Factory Proxy Test
+INFO 20788 --- [pool-1-thread-1] c.g.r.proxy.SpringProxyBeanFactoryTest   : class com.sun.proxy.$Proxy60
+INFO 20788 --- [pool-1-thread-1] c.g.r.proxy.SpringProxyBeanFactoryTest   : class com.github.renuevo.proxy.domain.factory.FactoryCglibService$$EnhancerBySpringCGLIB$$feeedfff
+INFO 20788 --- [pool-1-thread-1] c.g.r.proxy.SpringProxyBeanFactoryTest   : class com.github.renuevo.proxy.domain.factory.config.ProxyFactoryBeanTarget$$EnhancerBySpringCGLIB$$5eee0c36
+
+
+### Call Proxy Bean Factory Method
+INFO 18716 --- [         task-4] c.g.r.p.d.factory.config.CustomAdvice    : Proxy 부가기능
+INFO 18716 --- [         task-6] c.g.r.p.d.factory.config.CustomAdvice    : Proxy 부가기능
+INFO 18716 --- [         task-5] c.g.r.p.d.factory.config.CustomAdvice    : Proxy 부가기능
+INFO 18716 --- [         task-4] c.g.r.p.d.factory.FactoryCglibService    : I'm A
+INFO 18716 --- [         task-5] c.g.r.p.d.factory.FactoryCglibService    : I'm B
+INFO 18716 --- [         task-6] c.g.r.p.d.factory.FactoryCglibService    : I'm C
 
 ```
 

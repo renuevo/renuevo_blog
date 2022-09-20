@@ -328,7 +328,7 @@ class CglibService {
 }
 ```
 
-<span class='code_header'>**Proxy Test Code**</span>
+<span class='code_header'>Proxy Test Code</span>
 ```kotlin
 
 internal class CglibTest : ShouldSpec({
@@ -426,7 +426,7 @@ MethodProxy는 내부적으로 FastClassInfo를 처음 호출시에만 init()하
 FastClass의 invoke를 호출하여 기존 method invoke보다 빠른 함수 호출을 사용합니다  
 
 
-<span class='code_header'>**Result**</span>
+<span class='code_header'>Result</span>
 ```text
 
 INFO com.github.renuevo.proxy.TestCglibMethodInterceptor - interceptor number is 1
