@@ -533,8 +533,13 @@ INFO 18716 --- [         task-5] c.g.r.p.d.factory.FactoryCglibService    : I'm 
 INFO 18716 --- [         task-6] c.g.r.p.d.factory.FactoryCglibService    : I'm C
 
 ```
+가장 먼저 확인해 본것은 **프록시 종류와 프록시 기능 동작** 여부입니다  
 
+"Factory Proxy Test" 테스트에서 `JDK Proxy, CGLIB, CGLIB`으로 프록시가 생성된것을 확인할 수 있습니다
 
+"Call Proxy Bean Factory Method" 테스트에서 async로 순서는 보장되지 않았지만 부가기능이 잘 찍히는걸 볼 수 있습니다  
+
+<br/>
 
 ```kotlin
 
@@ -624,7 +629,11 @@ INFO 13840 --- [pool-1-thread-1] c.g.r.p.d.f.FactoryJdkProxyServiceImpl   : I'm 
 INFO 13840 --- [pool-1-thread-1] c.g.r.p.d.factory.config.CustomAdvice    : Proxy 부가기능
 INFO 13840 --- [pool-1-thread-1] c.g.r.p.d.f.FactoryJdkProxyServiceImpl   : I'm C
 ```
+마지막으로 ProxyFactory를 통해 임의로 프록시를 생성해서 확인해 보았습니다  
+인터페이스를 가지고 있다고 하더라도 `isProxyTargetClass = true`를 활용하면 CGLIB 프록시를 생성할 수 있는것 까지 확인할 수 있습니다  
 
+
+---
 
 
 
