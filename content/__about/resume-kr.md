@@ -1,6 +1,6 @@
 ---
 title: 'about'
-date: 2022-06-06 20:17:00
+date: 2022-10-19 21:59:00
 lang: 'ko'
 ---
 
@@ -14,9 +14,9 @@ lang: 'ko'
 </figure> 
 
 👨 Deokhwa Kim  
-🎂 30 age  
+🎂 31 age  
 👨‍💻 Backend Engineer  
-💳 Kakaopay Corp
+🌎 Line Corp
 
 
 <br/>
